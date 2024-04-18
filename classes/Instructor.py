@@ -3,9 +3,13 @@ class Instructor(object):
         pass
 
 
-    def assiginTA(self, course, taName ):
-        pass
 
 
     def editInfo(self, name):
+        pass
+
+    def assignTA(self, course, ta_name):
+        pass
+
+    def getAssignedTA(self, course):
         pass
