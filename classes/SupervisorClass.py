@@ -7,3 +7,6 @@ class Supervisor:
 
     def list_courses(self):
         pass
+
+    def list_tas(self):
+        pass
