@@ -1,16 +1,22 @@
 from django.db import models
+
+
 # Create your models here.
 
 
-#For html refrencing of classes, example: User.username = username
-#For html refernence of linked tables: Courses.ta.username = username
+# For html refrencing of classes, example: User.username = username
+# For html refernence of linked tables: Courses.ta.username = username
 
-#creating choices for role
+# creating choices for role
 class Roles(models.TextChoices):
     TA = "TA"
     Instructor = "Instructor"
     Supervisor = "Supervisor"
+
+
 3
+
+
 # creating User class for database
 class User(models.Model):
     username = models.EmailField()
@@ -22,7 +28,8 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
-#creating Course class for database
+
+# creating Course class for database
 class Course(models.Model):
     Course_name = models.CharField(max_length=100)
     section = models.IntegerField()
@@ -32,6 +39,5 @@ class Course(models.Model):
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="instructor")
     ta = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ta")
 
-
     def __str__(self):
-        return str(self.section) +  " " + self.Course_name
+        return str(self.section) + " " + self.Course_name
