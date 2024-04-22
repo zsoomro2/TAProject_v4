@@ -1,19 +1,32 @@
+from ta_app.models import User
 
 class Login:
-    def __init__(self, Username, Password):
-        pass
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
     def getUsername(self):
-        pass
+        user = self.findUser(self.username, self.password)
+        return user.username
 
     def getPassword(self):
-        pass
+        user = self.findUser(self.username, self.password)
+        return user.password
 
-    def setUsername(self, Username):
-        pass
+    def getRole(self):
+        user = self.findUser(self.username, self.password)
+        if user is not None:
+            return user.role
+        return None
 
-    def setPassword(self, Password):
-        pass
+    def findUser(self, username, password):
+        try:
+            user = User.objects.get(username=username)
+            check = (user.password == password)
+            if check:
+                return user
+            return None
+        except Exception:
+            return None
 
-    def findUser(self):
-        pass
+
