@@ -13,14 +13,13 @@ class TestSupervisor(TestCase):
         self.supervisor = Supervisor("user", "password")
         self.assertEqual(self.supervisor.username, "user")
 
-class TestCreateUser(TestCase):
+class TestCreate(TestCase):
     def setUp(self):
         self.supervisor = Supervisor("user", "password")
         self.jack = TAClass("jdue", "due", "Jack", "Due")
-        self.noah = TAClass("nsprunk", "sprunk", "Noah", "Sprunk")
         self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
 
-    def test_create_user(self):
+    def test_create_ta(self):
         self.test = Supervisor.createTA(self.supervisor, "jdue", "due", "Jack", "Due")
         self.assertEqual(self.test, self.jack)
 
@@ -28,18 +27,41 @@ class TestCreateUser(TestCase):
         self.test = Supervisor.createInstructor(self.supervisor, "jboyland", "boyland", "John", "Boyland")
         self.assertEqual(self.test, self.john)
 
-    def test_remove_user(self):
-        Supervisor.removeUser(self.supervisor, self.jack.username)
-        users = list(User.objects.filter(role="TA"))
-        self.assertEqual(len(users), 1)
-
     def test_create_course(self):
-        self.test = Supervisor.createCourse(self.supervisor, "Software Engineering", 337, "01/20/23", "05/20/24", 3,
+        self.test = Supervisor.createCourse(self.supervisor, "Software Engineering", 361, "01/20/23", "05/20/24", 3,
                                             self.john, self.jack)
         courses = list(Course.objects.filter(Course_name="Software Engineering"))
         self.assertEqual(len(courses), 1)
 
+class TestRemove(TestCase) :
+    def setUp(self):
+        self.supervisor = Supervisor("user", "password")
+        self.jack = TAClass("jdue", "due", "Jack", "Due")
+        self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
+        Supervisor.createTA(self.supervisor, "jdue", "due", "Jack", "Due")
+        Supervisor.createInstructor(self.supervisor, "jboyland", "boyland", "John", "Boyland")
+        Supervisor.createCourse(self.supervisor, "Software Engineering", 361, "01/20/23", "05/20/24", 3,
+                                self.john, self.jack)
+    def test_remove_TA(self):
+        Supervisor.removeTA(self.supervisor, self.jack.username)
+        users = list(User.objects.filter(role="TA"))
+        self.assertEqual(len(users), 0)
+
+    def test_remove_instructor(self):
+        Supervisor.removeTA(self.supervisor, self.john.username)
+        users = list(User.objects.filter(role="Instructor"))
+        self.assertEqual(len(users), 0)
+
+    def test_remove_unknown_TA(self):
+        self.assertFalse(Supervisor.removeTA(self.supervisor, "jim"))
+
+    def test_remove_unknown_instructor(self):
+        self.assertFalse(Supervisor.removeTA(self.supervisor, "jayson"))
+
     def test_remove_course(self):
-        Supervisor.removeCourse(self.supervisor, 337)
-        courses = list(Course.objects.filter(section=337))
+        Supervisor.removeCourse(self.supervisor, 361)
+        courses = list(Course.objects.filter(section=361))
         self.assertEqual(len(courses), 0)
+
+    def test_remove_unknown_course(self):
+        self.assertFalse(Supervisor.removeCourse(self.supervisor, 360))
