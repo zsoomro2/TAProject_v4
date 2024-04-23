@@ -11,6 +11,4 @@ class TAClass:
         pass
 
     def editInfo(self, fname=None, lname=None, email=None):
-        self.fname = fname
-        self.lname = lname
-        self.email = email
+       pass
