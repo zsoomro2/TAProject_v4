@@ -4,7 +4,7 @@ from classes.InstructorClass import Instructor
 
 class InstructorTest(TestCase):
     def setUp(self):
-        self.instructor = Instructor(1)
+        self.instructor = Instructor(user_id='Bob', password=1)
 
     def test_assign_ta(self):
         # Test the assignTA method

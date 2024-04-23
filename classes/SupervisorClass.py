@@ -1,5 +1,5 @@
-from TAClass import TAClass
-from Instructor import Instructor
+from classes.TAClass import TAClass
+from classes.InstructorClass import Instructor
 
 
 class Supervisor:

@@ -21,7 +21,7 @@ class LoginTests(TestCase):
 
     def test_badPassword(self):
         user = Login(username='test@test.com', password='bad')
-        self.assertEqual(user.getPassword('badPassword'), None, msg="Password not found")
+        self.assertEqual(user.getPassword(), msg="Password not found")
 
     def test_getRole(self):
         user = Login(username='test@test.com', password='<PASSWORD>')
