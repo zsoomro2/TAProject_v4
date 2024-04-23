@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="text-align: center;">
+    {{ message }}
+    <meta charset="UTF-8">
+    <title>Add Users</title>
+
+<h1> Add User To Database</h1>
+<br/>
+
+<form method="post" action={% url 'adduser' %}>
+    {% csrf_token %}
+    <p><label> Email: </label> <input type="text" name = "username" maxlength="200" required></p>
+    <p><label> Password: </label> <input type="password" name = "password" maxlength="200" required></p>
+    <p><label> First name: </label> <input type="text" name = "fname" maxlength="200" required></p>
+    <p><label> Last name: </label> <input type="text" name = "lname" maxlength="200" required></p>
+    <p><label>Role: </label><select name="role">
+    {% for role in role_choices %}
+        <option value="{{ role.0 }}">{{ role.1 }}</option>
+    {% endfor %}
+    </select></p>
+
+    <a href={% url 'supervisor' %}> <input type="submit" value="Submit" class="btn btn-primary"></a>
+</form>
+    </div>
+{% endblock %}
