@@ -1,6 +1,3 @@
-from ta_app.models import User, Course
-
-
 class TAClass:
     def __init__(self, username, lname, fname, password, email):
         self.username = username

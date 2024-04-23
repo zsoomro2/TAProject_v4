@@ -2,7 +2,8 @@ from django.test import TestCase
 from classes.SupervisorClass import Supervisor
 from classes.TAClass import TAClass
 from ta_app.models import User, Course
-import unittest
+from classes.InstructorClass import Instructor
+
 
 class TestSupervisor(TestCase):
     def test_init(self):
@@ -13,11 +14,12 @@ class TestSupervisor(TestCase):
         self.supervisor = Supervisor("user", "password")
         self.assertEqual(self.supervisor.username, "user")
 
+
 class TestCreate(TestCase):
     def setUp(self):
         self.supervisor = Supervisor("user", "password")
         self.jack = TAClass("jdue", "due", "Jack", "Due")
-        self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
+        self.john = Instructor("jboyland", "boyland", "John", "Boyland")
 
     def test_create_ta(self):
         self.test = Supervisor.createTA(self.supervisor, "jdue", "due", "Jack", "Due")
@@ -33,15 +35,17 @@ class TestCreate(TestCase):
         courses = list(Course.objects.filter(Course_name="Software Engineering"))
         self.assertEqual(len(courses), 1)
 
-class TestRemove(TestCase) :
+
+class TestRemove(TestCase):
     def setUp(self):
         self.supervisor = Supervisor("user", "password")
         self.jack = TAClass("jdue", "due", "Jack", "Due")
-        self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
+        self.john = Instructor("jboyland", "boyland", "John", "Boyland")
         Supervisor.createTA(self.supervisor, "jdue", "due", "Jack", "Due")
         Supervisor.createInstructor(self.supervisor, "jboyland", "boyland", "John", "Boyland")
         Supervisor.createCourse(self.supervisor, "Software Engineering", 361, "01/20/23", "05/20/24", 3,
                                 self.john, self.jack)
+
     def test_remove_TA(self):
         Supervisor.removeTA(self.supervisor, self.jack.username)
         users = list(User.objects.filter(role="TA"))

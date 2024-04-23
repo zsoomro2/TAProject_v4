@@ -1,3 +1,7 @@
+from TAClass import TAClass
+from Instructor import Instructor
+
+
 class Supervisor:
     def __init__(self, username, password):
         self.username = username
@@ -8,7 +12,7 @@ class Supervisor:
         return ta_instance.save_details()
 
     def createInstructor(self, username, password, fname, lname):
-        instructor_instance = InstructorClass(username, password, fname, lname)
+        instructor_instance = Instructor(username, password, fname, lname)
         return instructor_instance.save_details()
 
     def removeTA(self, username):
@@ -22,4 +26,3 @@ class Supervisor:
 
     def removeCourse(self, section):
         pass
-
