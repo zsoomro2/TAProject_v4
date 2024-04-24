@@ -1,9 +1,20 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    {{ message }}
 <head>
     <meta charset="UTF-8">
     <title>Supervisor Page</title>
 </head>
-{{ message }}
 <br>
 {% for user in user_list %}
 Hello {{ user.fname }} {{ user.lname }}, {{ user.role }}
 {% endfor %}
+</br>
+</br>
+<ul>
+    <li><a href={% url 'adduser' %}> <button> Add Users</button></a></li>
+</ul>
+</body>
+
+{% endblock %}

@@ -10,7 +10,10 @@ class AddUser:
 
     def validate(self):
         data_list = [self.username, self.password, self.fname, self.lname, self.role]
-        if len(data_list) == 6:
+        if len(data_list) == 5:
+            for item in data_list:
+                if item == "" or item is None:
+                    return False
             char_list = list(self.username)
             for char in char_list:
                 if char == '@':

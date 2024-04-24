@@ -3,6 +3,7 @@ from django.views import View
 from .models import User, Roles
 from classes.Login import Login
 from classes.AddUser import AddUser
+
 # Create your views here.
 
 class login(View):
@@ -47,14 +48,17 @@ class adduser(View):
         if isvalid and not check:
             User.objects.create(username=new_user.username, password=new_user.password, fname=new_user.fname,
                                 lname=new_user.lname, role=new_user.role)
-            return render(request, 'supervisor.html', {'message': "You have successfully added user"})
+            return render(request, 'supervisor.html', {'message': "You have successfully added " + new_user.username})
         if check:
-            return render(request, "supervisor.html",{'message': "User already exists"})
+            return render(request, "add_user.html",{'message': "User already exists", 'role_choices':Roles.choices})
+        if not isvalid:
+            return render(request, "add_user.html", {'message': "There was an error validating the form",
+                          'role_choices':Roles.choices})
 
 
 class supervisor(View):
     def get(self, request):
-        return render(request, "supervisor.html", {})
+            return render(request, "supervisor.html", {})
 
 class instructor(View):
     def get(self, request):
