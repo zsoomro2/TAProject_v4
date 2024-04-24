@@ -1,5 +1,5 @@
 class TAClass:
-    def __init__(self, username, lname, fname, password, email):
+    def __init__(self, username, fname, lname, password, email):
         self.username = username
         self.lname = lname
         self.fname = fname
@@ -8,7 +8,10 @@ class TAClass:
         self.courses = []
 
     def view_assignments(self):
-        pass
+        if not self.courses:
+            return None
+        return self.courses
 
-    def editInfo(self, fname=None, lname=None, email=None):
-       pass
+    def editInfo(self, fname=None, lname=None):
+        self.fname = fname
+        self.lname = lname

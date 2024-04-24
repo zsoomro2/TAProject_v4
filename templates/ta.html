@@ -1,8 +1,31 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
-    <title>Supervisor Page</title>
+    <title>User Page</title>
+    {% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
-<br>
+<body>
+
 {% for user in user_list %}
-Hello {{ user.fname }} {{ user.lname }}, {{ user.role }}
+    <div class="user-info">
+        <header>{{ user.role }} Homepage</header>
+        <h3>Hello {{ user.fname }} {{ user.lname }}</h3>
+        <div class="course-list">
+                <h3>Courses Assigned:</h3>
+                <ul>
+                    {% for course in user.ta.courses.all %}
+                        <li class="course-item">{{ course.Course_name }}</li>
+                    {% endfor %}
+                </ul>
+              
+        </div>
+    </div>
 {% endfor %}
+
+</body>
+{% endblock %}

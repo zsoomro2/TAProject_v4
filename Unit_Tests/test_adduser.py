@@ -5,10 +5,12 @@ from classes.AddUser import AddUser
 
 class AddUserTests(TestCase):
     def setUp(self):
-        User.objects.create(username='test@test.com', password='<PASSWORD>', fname='test', lname='test_lname', role='TA')
+        User.objects.create(username='test@test.com', password='<PASSWORD>', fname='test', lname='test_lname',
+                            role='TA')
 
     def test_validate(self):
-        user1 = AddUser(username='test@test.com', password='<PASSWORD>', fname='test_name', lname='test_lname', role='TA')
+        user1 = AddUser(username='test@test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
+                        role='TA')
         self.assertEqual(user1.validate(), True)
 
     def test_emptyValue(self):
@@ -16,7 +18,8 @@ class AddUserTests(TestCase):
         self.assertEqual(user2.validate(), False)
 
     def test_badUsername(self):
-        user3 = AddUser(username='test1test.com', password='<PASSWORD>', fname='test_name', lname='test_lname', role='TA')
+        user3 = AddUser(username='test1test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
+                        role='TA')
         self.assertEqual(user3.validate(), False)
 
     def test_checkUser(self):
