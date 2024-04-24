@@ -38,6 +38,10 @@ class Login(TestCase):
 
 class AddUserTestCase(TestCase):
     client = Client()
+
+class LogoutTest(TestCase):
+    client=None
+
     def setUp(self):
         self.client = Client()
         test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',

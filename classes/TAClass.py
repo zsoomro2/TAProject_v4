@@ -1,6 +1,3 @@
-from ta_app.models import User, Course
-
-
 class TAClass:
     def __init__(self, username, lname, fname, password, email):
         self.username = username
@@ -14,6 +11,4 @@ class TAClass:
         pass
 
     def editInfo(self, fname=None, lname=None, email=None):
-        self.fname = fname
-        self.lname = lname
-        self.email = email
+       pass

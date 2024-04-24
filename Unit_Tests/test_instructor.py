@@ -1,11 +1,10 @@
-import unittest;
+from django.test import TestCase
+from classes.InstructorClass import Instructor
 
-from classes.Instructor import Instructor
 
-
-class instructorTest(unittest.TestCase):
+class InstructorTest(TestCase):
     def setUp(self):
-        self.instructor = Instructor()
+        self.instructor = Instructor(user_id='Bob', password=1)
 
     def test_assign_ta(self):
         # Test the assignTA method
@@ -18,3 +17,4 @@ class instructorTest(unittest.TestCase):
 
         assigned_ta = self.instructor.getAssignedTA(course)
         self.assertEqual(assigned_ta, ta_name)
+

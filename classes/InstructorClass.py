@@ -1,9 +1,13 @@
 class Instructor:
-    def __init__(self, user_id):
+    def __init__(self, user_id, password):
+        self.username = user_id
+        self.password = password
+
+    def editInfo(self, name):
         pass
 
-    def list_my_courses(self):
+    def assignTA(self, course, ta_name):
         pass
 
-    def update_course_info(self, course_id, start=None, end=None, credits=None):
+    def getAssignedTA(self, course):
         pass

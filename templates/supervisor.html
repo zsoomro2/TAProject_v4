@@ -2,6 +2,9 @@
 
 {% block content %}
     {{ message }}
+{% extends 'base.html' %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <title>Supervisor Page</title>
@@ -16,5 +19,6 @@ Hello {{ user.fname }} {{ user.lname }}, {{ user.role }}
     <li><a href={% url 'adduser' %}> <button> Add Users</button></a></li>
 </ul>
 </body>
+
 
 {% endblock %}
