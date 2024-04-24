@@ -40,20 +40,27 @@ class AddUserTestCase(TestCase):
     client = Client()
     def setUp(self):
         self.client = Client()
+        test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='TA')
 
     def test_addUser(self):
-        resp = self.client.post('add_user.html', {'username':'test3@test.com', 'password':'<PASSWORD>',
+        resp = self.client.post('/adduser/', {'username':'test3@test.com', 'password':'<PASSWORD>',
                                                   'fname':'test_name', 'lname':'test_lname', 'role':'TA'})
         self.assertEqual(resp.context['message'], "You have successfully added test3@test.com")
 
     def test_badUser(self):
-        resp = self.client.post('add_user.html', {'username':'test', 'password':'test3', 'fname':'test_name3',
+        resp = self.client.post('/adduser/', {'username':'test', 'password':'test3', 'fname':'test_name3',
                                          'lname':'test_lname3', 'role': 'Supervisor'})
         user = User.objects.filter(username="test")
         self.assertEqual(resp.context['message'], "There was an error validating the form")
 
+    def test_badData(self):
+        resp = self.client.post('/adduser/', {'username':'test1@test.com', 'password':'test3', 'fname':'',
+                                              'lname':'test_lname3', 'role':'Supervisor'})
+        self.assertEqual(resp.context['message'], "There was an error validating the form")
+
     def test_addExistingUser(self):
-            resp = self.client.post('add_user.html', {'username':'admin@admin.com', 'password':'test3', 'fname':'test_name3',
+        resp = self.client.post('/adduser/', {'username':'test@test.com', 'password':'test3', 'fname':'test_name3',
                                          'lname':'test_lname3', 'role': 'Supervisor'})
-            self.assertEqual(resp.context['message'], "User already exists")
+        self.assertEqual(resp.context['message'], "User already exists")
 
