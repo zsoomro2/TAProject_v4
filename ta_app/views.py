@@ -61,7 +61,9 @@ class adduser(View):
 
 class supervisor(View):
     def get(self, request):
-        return render(request, "supervisor.html", {})
+        users = User.objects.all()  # Fetch all user objects
+        return render(request, "supervisor.html", {'users': users})
+
 
 
 class instructor(View):
