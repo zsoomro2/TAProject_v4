@@ -67,4 +67,3 @@ class LogoutTest(TestCase):
         resp = self.client.post('/adduser/', {'username':'test@test.com', 'password':'test3', 'fname':'test_name3',
                                          'lname':'test_lname3', 'role': 'Supervisor'})
         self.assertEqual(resp.context['message'], "User already exists")
-
