@@ -1,20 +1,37 @@
-from django.test import TestCase
-from classes.InstructorClass import Instructor
+from django.test import TestCase, Client
+from ta_app.models import User, Course
+# Create your tests here.
 
+class Login(TestCase):
+    client=None
 
-class InstructorTest(TestCase):
     def setUp(self):
-        self.instructor = Instructor(user_id='Bob', password=1)
+        self.client = Client()
+        test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='TA')
 
-    def test_assign_ta(self):
-        # Test the assignTA method
-        course = "Introduction to Programming"
-        ta_name = "Tom"
+        test_user2 = User.objects.create(username='test2@test.com', password='test2', fname='test_name2',
+                                         lname='test_lname2',  role="Instructor")
 
+        test_user3 = User.objects.create(username='test3@test', password='test3', fname='test_name3',
+                                         lname='test_lname3', role="Supervisor")
 
-        self.instructor.assignTA(course, ta_name)
+    def test_userSupervisor(self):
+        resp = self.client.post('', {'username':'test3@test.com', 'password':'test3'})
+        self.assertEqual(resp.status_code, 200)
 
+    def test_userInstructor(self):
+        resp = self.client.post('', {'username':'test2@test.com', 'password':'test2'})
+        self.assertEqual(resp.status_code, 200)
 
-        assigned_ta = self.instructor.getAssignedTA(course)
-        self.assertEqual(assigned_ta, ta_name)
+    def test_userTA(self):
+        resp = self.client.post('', {'username':'test@test.com', 'password':'test'})
+        self.assertEqual(resp.status_code, 200)
 
+    def test_badUsername(self):
+        resp = self.client.post('', {'username':'badUser@test.com', 'password':'<PASSWORD>'}, follow=True)
+        self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
+
+    def test_badPassword(self):
+        resp = self.client.post('', {'username':'test@test.com', 'password':'<PA>'}, follow=True)
+        self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
