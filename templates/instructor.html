@@ -20,9 +20,14 @@
     <div class="course-list">
         List of Courses:
     </div>
-    <div class="course-list">
-        List of TAs:
-    </div>
+   <div class="course-list">
+    List of Users:
+    {% for user in users %}
+        <p>{{ user.fname }} {{ user.lname }} - {{ user.role }}</p>
+    {% empty %}
+        <p>No users found.</p>
+    {% endfor %}
+</div>
     </div>
     
         <a href={% url 'adduser' %}> <button> Add Users</button></a>
