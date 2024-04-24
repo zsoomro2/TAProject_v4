@@ -1,6 +1,6 @@
 class InstructorClass:
-    def __init__(self, username, lname, fname, password, email):
-        self.username = username
+    def __init__(self, lname, fname, password, email):
+        self.username = email
         self.lname = lname
         self.fname = fname
         self.password = password

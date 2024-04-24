@@ -1,10 +1,10 @@
-import unittest
 from ta_app.models import User, Course
 
 from classes.InstructorClass import InstructorClass
+from django.test import TestCase
 
 
-class InstructorTestAssign(unittest.TestCase):
+class InstructorTestAssign(TestCase):
     def setUp(self):
         self.instructor = User.objects.create(
             username='instructor@example.com',
@@ -56,9 +56,9 @@ class InstructorTestAssign(unittest.TestCase):
             self.assertRaises(e, msg="nothing provided")
 
 
-class InstructorTest(unittest.TestCase):
+class InstructorTest(TestCase):
     def setUp(self):
-        self.instructor = InstructorClass(username="testname", lname="Name", fname="Test", password="password",
+        self.instructor = InstructorClass( lname="Name", fname="Test", password="password",
                           email="test@example.com")
 
     def test_username(self):
