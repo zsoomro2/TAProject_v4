@@ -1,37 +1,83 @@
-from django.test import TestCase, Client
+import unittest
 from ta_app.models import User, Course
-# Create your tests here.
 
-class Login(TestCase):
-    client=None
+from classes.Instructor import Instructor
 
+
+class InstructorTestAssign(unittest.TestCase):
     def setUp(self):
-        self.client = Client()
-        test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
-                                        lname='test_lname', role='TA')
+        self.instructor = User.objects.create(
+            username='instructor@example.com',
+            password='instructor123',
+            fname='Jane',
+            lname='Smith',
+            role='Instructor')
 
-        test_user2 = User.objects.create(username='test2@test.com', password='test2', fname='test_name2',
-                                         lname='test_lname2',  role="Instructor")
+        self.ta = User.objects.create(
+            username='ta@example.com',
+            password='ta123',
+            fname='Tom',
+            lname='Jones',
+            role='TA'
+        )
+        self.course = Course.objects.create(
+            Course_name='math',
+            section='101',
+            start='feb2',
+            end='feb3',
+            credits='3',
+            instructor='Jane',
+            ta='')
 
-        test_user3 = User.objects.create(username='test3@test', password='test3', fname='test_name3',
-                                         lname='test_lname3', role="Supervisor")
+    def test_assign_ta(self):
+        # Test the assignTA method
 
-    def test_userSupervisor(self):
-        resp = self.client.post('', {'username':'test3@test.com', 'password':'test3'})
-        self.assertEqual(resp.status_code, 200)
+        self.instructor.assignTA('math', 'Tom')
 
-    def test_userInstructor(self):
-        resp = self.client.post('', {'username':'test2@test.com', 'password':'test2'})
-        self.assertEqual(resp.status_code, 200)
+        assigned_ta = self.instructor.getAssignedTA('math')
+        self.assertEqual(assigned_ta, "Tom")
 
-    def test_userTA(self):
-        resp = self.client.post('', {'username':'test@test.com', 'password':'test'})
-        self.assertEqual(resp.status_code, 200)
+    def test_assign_taNoCorse(self):
+        try:
+            self.instructor.assignTA('', 'Tom')
+        except Exception as e:
+            self.assertRaises(e, msg="Invalid username or password")
 
-    def test_badUsername(self):
-        resp = self.client.post('', {'username':'badUser@test.com', 'password':'<PASSWORD>'}, follow=True)
-        self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
+    def test_assign_taCorseNoName(self):
+        try:
+            self.instructor.assignTa('math', '')
+        except Exception as e:
+            self.assertRaises(e, msg="no course provided")
 
-    def test_badPassword(self):
-        resp = self.client.post('', {'username':'test@test.com', 'password':'<PA>'}, follow=True)
-        self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
+    def test_assign_nothing(self):
+        try:
+            self.instructor.assignTa('', '')
+        except Exception as e:
+            self.assertRaises(e, msg="nothing provided")
+
+
+class InstructorTestEditInfo(unittest.TestCase):
+    def setUp(self):
+        self.instructor = User.objects.create(
+            username='instructor@example.com',
+            password='instructor123',
+            fname='Jane',
+            lname='Smith',
+            role='Instructor')
+
+        self.ta = User.objects.create(
+            username='ta@example.com',
+            password='ta123',
+            fname='Tom',
+            lname='Jones',
+            role='TA'
+        )
+        self.course = Course.objects.create(
+            Course_name='math',
+            section='101',
+            start='feb2',
+            end='feb3',
+            credits='3',
+            instructor='Jane',
+            ta='')
+
