@@ -13,10 +13,6 @@ class Roles(models.TextChoices):
     Instructor = "Instructor"
     Supervisor = "Supervisor"
 
-
-3
-
-
 # creating User class for database
 class User(models.Model):
     username = models.EmailField()

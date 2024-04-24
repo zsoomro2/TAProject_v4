@@ -15,3 +15,4 @@ class InstructorTest(TestCase):
 
         assigned_ta = self.instructor.getAssignedTA(course)
         self.assertEqual(assigned_ta, ta_name)
+

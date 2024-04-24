@@ -35,3 +35,12 @@ class Login(TestCase):
     def test_badPassword(self):
         resp = self.client.post('', {'username':'test@test.com', 'password':'<PA>'}, follow=True)
         self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
+
+class LogoutTest(TestCase):
+    client=None
+
+    def setUp(self):
+        self.client = Client()
+        test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='TA')
+

@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <title>Supervisor Page</title>
@@ -6,3 +9,4 @@
 {% for user in user_list %}
 Hello {{ user.fname }} {{ user.lname }}, {{ user.role }}
 {% endfor %}
+{% endblock %}
