@@ -1,5 +1,6 @@
 from ta_app.models import User
 
+
 class AddUser:
     def __init__(self, username, password, fname, lname, role):
         self.username = username

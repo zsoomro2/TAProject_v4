@@ -1,56 +1,52 @@
 from django.test import TestCase
-from ta_app.models import User, Course, Roles
-from classes import TAClass
+from ta_app.models import User
+from classes.TAClass import TAClass
 
 
 class TATestCase(TestCase):
     def setUp(self):
         self.ta_user = User.objects.create(username="ta@example.com", password="password", fname="TA", lname="User",
-                                           role=Roles.TA)
-        self.instructor_user = User.objects.create(username="instructor@example.com", password="password",
-                                                   fname="Instructor", lname="User", role=Roles.Instructor)
-        self.course = Course.objects.create(
-            Course_name="Calculus",
-            section=1,
-            start="2022-09-01",
-            end="2023-06-01",
-            credits=3,
-            instructor=self.instructor_user,
-            ta=self.ta_user
-        )
-
-    def test_view_assignments(self):
-        ta = TAClass.TAClass(self.ta_user.id)
-        assignments = ta.view_assignments()
-        self.assertEqual(assignments.first(), self.course)
-
-    def test_update_info(self):
-        ta = TAClass.TAClass(self.ta_user.id)
-        updated = ta.editInfo(fname="Updated", lname="TA")
-        self.ta_user.refresh_from_db()
-        self.assertEqual(self.ta_user.fname, "Updated")
-        self.assertEqual(self.ta_user.lname, "TA")
-
-from classes.TAClass import TAClass  # Make sure to adjust the import path based on your project structure
-
-
-class TATest(TestCase):
-    def setUp(self):
-        self.ta = TAClass(username="testname", lname="Name", fname="Test", password="password",
-                          email="test@example.com")
+                                           role="TA")
+        self.ta = TAClass(self.ta_user.username, self.ta_user.fname, self.ta_user.lname, self.ta_user.password,
+                          self.ta_user.username)
 
     def test_username(self):
-        self.assertEqual(self.ta.username, "testname")
-
-    def test_lname(self):
-        self.assertEqual(self.ta.lname, "Name")
+        self.assertEqual(self.ta.username, "ta@example.com")
 
     def test_fname(self):
-        self.assertEqual(self.ta.fname, "Test")
+        self.assertEqual(self.ta.fname, "TA")
+
+    def test_lname(self):
+        self.assertEqual(self.ta.lname, "User")
+
+    def test_password(self):
         self.assertEqual(self.ta.password, "password")
-        self.assertEqual(self.ta.email, "test@example.com")
+
+    def test_email(self):
+        self.assertEqual(self.ta.email, "ta@example.com")
+
+    def test_courses(self):
         self.assertEqual(len(self.ta.courses), 0)
 
-    def test_view_assignments(self):
-        self.assertIsNone(self.ta.view_assignments(),
-                          "view_assignments should return None or similar for no assignments")
+    def test_edit_info(self):
+        ta = TAClass(self.ta_user.username, self.ta_user.fname, self.ta_user.lname, self.ta_user.password,
+                     self.ta_user.username)
+
+        ta.editInfo(fname="Updated", lname="TA")
+        self.assertEqual(ta.fname, "Updated")
+        self.assertEqual(ta.lname, "TA")
+
+    def test_view_assignments_empty(self):
+        ta = TAClass(self.ta_user.username, self.ta_user.fname, self.ta_user.lname, self.ta_user.password,
+                     self.ta_user.username)
+
+        assignments = ta.view_assignments()
+        self.assertEqual(assignments, None)
+
+    def test_view_assignments_with_courses(self):
+        ta = TAClass(self.ta_user.username, self.ta_user.fname, self.ta_user.lname, self.ta_user.password,
+                     self.ta_user.username)
+        ta.courses = ["Course1", "Course2"]
+
+        assignments = ta.view_assignments()
+        self.assertEqual(assignments, ["Course1", "Course2"])

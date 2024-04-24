@@ -1,8 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Supervisor Page
+{% endblock %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
-    <title>Supervisor Page</title>
+    <title>Instructor Page</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
-<br>
-{% for user in user_list %}
-Hello {{ user.fname }} {{ user.lname }}, {{ user.role }}
-{% endfor %}
+<body>
+
+    <header>{{ user.role }} Homepage</header>
+
+    <h3>Hello {{ user.fname }} {{ user.lname }}</h3>
+    <div class="user-info">
+    <div class="course-list">
+        List of Courses:
+    </div>
+    <div class="course-list">
+        List of TAs:
+    </div>
+    </div>
+    
+        <a href={% url 'adduser' %}> <button> Add Users</button></a>
+</body>
+{% endblock %}

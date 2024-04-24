@@ -1,11 +1,14 @@
 from django.test import TestCase
 from classes.CourseClass import Course
+from classes.TAClass import TAClass
 
 
 class InstructorTest(TestCase):
     def setUp(self):
         # Setting up a Course object for use in all test methods
-        self.course = Course("Computer Science", "101", "09:00 AM", "10:30 AM", 4, "Dr. Smith", "John Doe")
+        self.ta = TAClass("test", "Name", "Test", "password", "test@example.com")
+
+        self.course = Course("Computer Science", "101", "09:00 AM", "10:30 AM", 4, "Dr. Smith", ta=self.ta)
 
     def test_get_name(self):
         self.assertEqual(self.course.get_name(), "Computer Science")
@@ -26,4 +29,4 @@ class InstructorTest(TestCase):
         self.assertEqual(self.course.get_instructor(), "Dr. Smith")
 
     def test_get_ta(self):
-        self.assertEqual(self.course.get_ta(), "John Doe")
+        self.assertEqual(self.course.get_ta(), self.ta)
