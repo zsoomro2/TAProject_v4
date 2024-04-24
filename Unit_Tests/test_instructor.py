@@ -11,7 +11,9 @@ class InstructorTest(TestCase):
         course = "Introduction to Programming"
         ta_name = "Tom"
 
+
         self.instructor.assignTA(course, ta_name)
+
 
         assigned_ta = self.instructor.getAssignedTA(course)
         self.assertEqual(assigned_ta, ta_name)

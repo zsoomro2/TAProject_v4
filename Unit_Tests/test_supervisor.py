@@ -2,6 +2,7 @@ from django.test import TestCase
 from classes.SupervisorClass import Supervisor
 from classes.TAClass import TAClass
 from ta_app.models import User, Course
+import unittest
 from classes.InstructorClass import Instructor
 
 
@@ -19,6 +20,7 @@ class TestCreate(TestCase):
     def setUp(self):
         self.supervisor = Supervisor("user", "password")
         self.jack = TAClass("jdue", "due", "Jack", "Due")
+        self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
         self.john = Instructor("jboyland", "boyland", "John", "Boyland")
 
     def test_create_ta(self):
@@ -35,6 +37,11 @@ class TestCreate(TestCase):
         courses = list(Course.objects.filter(Course_name="Software Engineering"))
         self.assertEqual(len(courses), 1)
 
+class TestRemove(TestCase) :
+    def setUp(self):
+        self.supervisor = Supervisor("user", "password")
+        self.jack = TAClass("jdue", "due", "Jack", "Due")
+        self.john = InstructorClass("jboyland", "boyland", "John", "Boyland")
 
 class TestRemove(TestCase):
     def setUp(self):

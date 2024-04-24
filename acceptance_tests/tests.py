@@ -36,6 +36,9 @@ class Login(TestCase):
         resp = self.client.post('', {'username':'test@test.com', 'password':'<PA>'}, follow=True)
         self.assertEqual(resp.context["message"], "There was an error logging you in, please try again")
 
+class AddUserTestCase(TestCase):
+    client = Client()
+
 class LogoutTest(TestCase):
     client=None
 
@@ -43,4 +46,25 @@ class LogoutTest(TestCase):
         self.client = Client()
         test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
                                         lname='test_lname', role='TA')
+
+    def test_addUser(self):
+        resp = self.client.post('/adduser/', {'username':'test3@test.com', 'password':'<PASSWORD>',
+                                                  'fname':'test_name', 'lname':'test_lname', 'role':'TA'})
+        self.assertEqual(resp.context['message'], "You have successfully added test3@test.com")
+
+    def test_badUser(self):
+        resp = self.client.post('/adduser/', {'username':'test', 'password':'test3', 'fname':'test_name3',
+                                         'lname':'test_lname3', 'role': 'Supervisor'})
+        user = User.objects.filter(username="test")
+        self.assertEqual(resp.context['message'], "There was an error validating the form")
+
+    def test_badData(self):
+        resp = self.client.post('/adduser/', {'username':'test1@test.com', 'password':'test3', 'fname':'',
+                                              'lname':'test_lname3', 'role':'Supervisor'})
+        self.assertEqual(resp.context['message'], "There was an error validating the form")
+
+    def test_addExistingUser(self):
+        resp = self.client.post('/adduser/', {'username':'test@test.com', 'password':'test3', 'fname':'test_name3',
+                                         'lname':'test_lname3', 'role': 'Supervisor'})
+        self.assertEqual(resp.context['message'], "User already exists")
 

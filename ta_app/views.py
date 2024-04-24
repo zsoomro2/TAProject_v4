@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import User
+from .models import User, Roles
 from classes.Login import Login
+from classes.AddUser import AddUser
+
 # Create your views here.
 
 class login(View):
@@ -33,9 +35,30 @@ class login(View):
             return render(request, 'login.html',
                           {'message': "There was an error logging you in, please try again"})
 
+class adduser(View):
+    def get(self, request):
+        return render(request, "add_user.html", {'role_choices':Roles.choices})
+
+    def post(self, request):
+        new_user = AddUser(request.POST['username'], request.POST['password'], request.POST['fname'],
+                           request.POST['lname'], request.POST['role'])
+        isvalid = new_user.validate()
+        check = new_user.checkUser()
+
+        if isvalid and not check:
+            User.objects.create(username=new_user.username, password=new_user.password, fname=new_user.fname,
+                                lname=new_user.lname, role=new_user.role)
+            return render(request, 'supervisor.html', {'message': "You have successfully added " + new_user.username})
+        if check:
+            return render(request, "add_user.html",{'message': "User already exists", 'role_choices':Roles.choices})
+        if not isvalid:
+            return render(request, "add_user.html", {'message': "There was an error validating the form",
+                          'role_choices':Roles.choices})
+
+
 class supervisor(View):
     def get(self, request):
-        return render(request, "supervisor.html", {})
+            return render(request, "supervisor.html", {})
 
 class instructor(View):
     def get(self, request):
