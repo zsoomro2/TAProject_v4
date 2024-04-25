@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import User, Roles
+from .models import User, Roles, Course
 from classes.Login import Login
 from classes.AddUser import AddUser
 from django.http import HttpResponseRedirect
@@ -19,9 +19,12 @@ class login(View):
         # create user_obj to grab a user/None type
         if user_obj is not None:
             if user.getRole() == "Supervisor":
-                user_list = User.objects.filter(username=user.username)
+                user = User.objects.get(username=user.username)
+                user_list = User.objects.all()
+                course_list = Course.objects.all()
                 return render(request, 'supervisor.html',
-                              {'message': "You have logged in", 'user_list': user_list})
+                              {'message': "You have logged in", 'user': user, 'user_list': user_list,
+                               'course_list': course_list})
 
             elif user.getRole() == "Instructor":
                 user_list = User.objects.filter(username=user.username)
@@ -61,8 +64,9 @@ class adduser(View):
 
 class supervisor(View):
     def get(self, request):
-        return render(request, "supervisor.html", {})
-
+        user_list = User.objects.all()
+        course_list = Course.objects.all()
+        return render(request, 'supervisor.html',{'user_list': user_list, 'course_list': course_list})
 
 class instructor(View):
     def get(self, request):
@@ -80,3 +84,8 @@ class LogoutView(View):
         for key in session_keys:
             del request.session[key]
         return HttpResponseRedirect('/')  # Redirect to the homepage or login page
+
+class edit(View):
+    def get(self, request, username):
+        user = User.objects.get(username=username)
+        return render(request, 'edit.html', {'username': user, 'role_choices': Roles.choices})

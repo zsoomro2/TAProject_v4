@@ -22,6 +22,10 @@ class AddUserTests(TestCase):
                         role='TA')
         self.assertEqual(user3.validate(), False)
 
+    def test_badRole(self):
+        user4 = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='Role')
+        self.assertEqual(user4.validate(), False)
+
     def test_checkUser(self):
         user1 = AddUser(username='test@test.com', password='<PASSWORD>', fname='test', lname='test_lname', role='TA')
         self.assertEqual(user1.checkUser(), True)
@@ -29,3 +33,5 @@ class AddUserTests(TestCase):
     def test_checkBadInfo(self):
         user2 = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='TA')
         self.assertEqual(user2.checkUser(), False)
+
+

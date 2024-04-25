@@ -67,5 +67,10 @@ class AddUserTestCase(TestCase):
                                               'fname': 'test_name', 'lname': 'test_lname', 'role': 'TA'})
         self.assertEqual(resp.context['message'], "You have successfully added test3@test.com")
 
+    def test_addBadRole(self):
+        resp = self.client.post('/adduser/', {'username': 'test3@test.com', 'password': '<PASSWORD>',
+                                              'fname': 'test_name', 'lname': 'test_lname', 'role': 'Role'})
+        self.assertEqual(resp.context['message'], "There was an error validating the form")
+
 class LogoutTest(TestCase):
     client = None

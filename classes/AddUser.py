@@ -1,4 +1,5 @@
 from ta_app.models import User
+from ta_app.models import Roles
 
 
 class AddUser:
@@ -13,7 +14,7 @@ class AddUser:
         data_list = [self.username, self.password, self.fname, self.lname, self.role]
         if len(data_list) == 5:
             for item in data_list:
-                if item == "" or item is None:
+                if item == "" or item is None or self.role not in Roles:
                     return False
             char_list = list(self.username)
             for char in char_list:
