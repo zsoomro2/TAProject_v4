@@ -1,26 +1,29 @@
+<html>
 {% extends 'base.html' %}
 
 {% block content %}
-    <div style="text-align: center;">
-    {{ message }}
+    <body>
+    <div style="text-align: left;">
     <meta charset="UTF-8">
     <title>Add Users</title>
 
 <h1> Add User To Database</h1>
 <br/>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
 
 <form method="post" action={% url 'adduser' %}>
     {% csrf_token %}
-    <p><label> Email: </label> <input type="text" name = "username" maxlength="200" required></p>
-    <p><label> Password: </label> <input type="password" name = "password" maxlength="200" required></p>
-    <p><label> First name: </label> <input type="text" name = "fname" maxlength="200" required></p>
-    <p><label> Last name: </label> <input type="text" name = "lname" maxlength="200" required></p>
-    <p><label>Role: </label><select name="role">
+    <p><input type="text" name = "username" class="form-control form-control" placeholder="Username"></p>
+    <p><input type="password" name = "password" class="form-control form-control" placeholder="Password"></p>
+    <p><input type="text" name = "fname" class="form-control form-control" placeholder="First Name"></p>
+    <p><input type="text" name = "lname" class="form-control form-control" placeholder="Last Name"></p>
+    <p><select name="role">
+        <option selected> Role... </option>
     {% for role in role_choices %}
         <option value="{{ role.0 }}">{{ role.1 }}</option>
     {% endfor %}
     </select></p>
-
     <a href={% url 'supervisor' %}> <input type="submit" value="Submit" class="btn btn-primary"></a>
 </form>
      <div class="course-list">
@@ -33,3 +36,5 @@
 </div>
     </div>
 {% endblock %}
+</body>
+</html>

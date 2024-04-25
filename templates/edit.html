@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+        {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
+    <br>
+    <meta charset="UTF-8">
+    <h3> Edit "{{ username }}"</h3>
+        {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <br>
+   <form method="post" action={% url 'edit' username %}>
+    {% csrf_token %}
+       <p><input type="text" id="text" name = "username" class="form-control form-control" value="{{ username }}"></p>
+       <p><input type="text" id="text" name = "password" class="form-control form-control" value="{{ username.password }}"></p>
+       <p><input type="text" id="text" name = "fname" class="form-control form-control" value="{{ username.fname }}"></p>
+       <p><input type="text" id="text" name = "lname" class="form-control form-control" value="{{ username.lname }}"></p>
+       <p><select name="role">
+        <option selected> {{ username.role }} </option>
+    {% for role in role_choices %}
+        <option value="{{ role.0 }}">{{ role.1 }}</option>
+    {% endfor %}
+           </select></p>
+       <input type="submit" value="Update" class="btn btn-primary"><br>
+   </form>
+</div>
+{% endblock %}
