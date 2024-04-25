@@ -26,6 +26,14 @@
     </select></p>
     <a href={% url 'supervisor' %}> <input type="submit" value="Submit" class="btn btn-primary"></a>
 </form>
+     <div class="course-list">
+    List of Users:
+    {% for user in users %}
+        <p>{{ user.fname }} {{ user.lname }} - {{ user.role }}</p>
+    {% empty %}
+        <p>No users found.</p>
+    {% endfor %}
+</div>
     </div>
 {% endblock %}
 </body>
