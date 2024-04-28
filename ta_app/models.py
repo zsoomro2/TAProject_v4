@@ -27,14 +27,15 @@ class User(models.Model):
 
 
 # creating Course class for database
+# DATETIME FIELD EXAMPLE: 4/25/2024 12:00 AM
 class Course(models.Model):
     Course_name = models.CharField(max_length=100)
     section = models.IntegerField()
-    start = models.DateField(max_length=20)
-    end = models.DateField(max_length=20)
+    start = models.DateTimeField(max_length=20)
+    end = models.DateTimeField(max_length=20)
     credits = models.IntegerField()
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="instructor")
     ta = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ta")
 
     def __str__(self):
-        return str(self.section) + " " + self.Course_name
+        return self.Course_name
