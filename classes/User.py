@@ -9,7 +9,7 @@ class User:
         self.role = role
 
     def get_username(self):
-        return self.uesername
+        return self.username
 
     def get_password(self):
         return self.password

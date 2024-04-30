@@ -36,7 +36,7 @@ class login(View):
             else:
                 user = User.objects.filter(username=user.username)
                 return render(request, 'ta.html', {
-                    'message': "You have logged in", 'user': user.usename})
+                    'message': "You have logged in", 'user': user})
 
         if user_obj is None:
             return render(request, 'login.html',
