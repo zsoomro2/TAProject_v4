@@ -31,12 +31,12 @@ class login(View):
             elif user.getRole() == "Instructor":
                 user = User.objects.get(username=user.username)
                 return render(request, 'instructor.html',
-                              {'message': "You have logged in", 'user': user.usename})
+                              {'message': "You have logged in", 'user': user.username})
 
             else:
-                user = User.objects.filter(username=user.username)
+                user = User.objects.get(username=user.username)
                 return render(request, 'ta.html', {
-                    'message': "You have logged in", 'user': user.usename})
+                    'message': "You have logged in", 'user': user.username})
 
         if user_obj is None:
             return render(request, 'login.html',
@@ -79,7 +79,10 @@ class supervisor(View):
         course_list = Course.objects.all()
         return render(request, 'supervisor.html',{'user_list': user_list, 'course_list': course_list})
 
-
+class user_page(View):
+    def get(self, request):
+        user_list = User.objects.all()
+        return render(request, 'editUser.html',{'user_list': user_list})
 
 
 class instructor(View):
