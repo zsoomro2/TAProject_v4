@@ -31,7 +31,7 @@ class login(View):
             elif user.getRole() == "Instructor":
                 user = User.objects.get(username=user.username)
                 return render(request, 'instructor.html',
-                              {'message': "You have logged in", 'user': user.usename})
+                              {'message': "You have logged in", 'user': user.username})
 
             else:
                 user = User.objects.filter(username=user.username)
