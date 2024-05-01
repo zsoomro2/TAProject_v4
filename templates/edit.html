@@ -9,13 +9,22 @@
     <br>
        <form method="post" action={% url 'edit' username %}>
            {% csrf_token %}
+       
     {% if isUser %}
             <h3> Edit "{{ username }}"</h3>
         <br>
-       <p><label>Username:</label><input type="text" id="text" name = "username" class="form-control form-control" value="{{ username }}"></p><br>
-       <p><label>Password:</label><input type="text" id="text" name = "password" class="form-control form-control" value="{{ username.password }}"></p><br>
-       <p><label>First Name:</label><input type="text" id="text" name = "fname" class="form-control form-control" value="{{ username.fname }}"></p><br>
-       <p><label>Last Name:</label></lable><input type="text" id="text" name = "lname" class="form-control form-control" value="{{ username.lname }}"></p><br>
+       <p><label>Username:</label><input type="text" id="text" name = "username" class="form-control form-control" 
+                                         value="{{ username }}" required></p><br>
+        
+       <p><label>Password:</label><input type="text" id="text" name = "password" class="form-control form-control" 
+                                         value="{{ username.password }}" required></p><br>
+        
+       <p><label>First Name:</label><input type="text" id="text" name = "fname" class="form-control form-control" 
+                                           value="{{ username.fname }}" required></p><br>
+        
+       <p><label>Last Name:</label></lable><input type="text" id="text" name = "lname" class="form-control form-control" 
+                                                  value="{{ username.lname }}" required></p><br>
+        
         <p><label>Role: </label><select name="role"><option selected> {{ username.role }} </option>
     {% for role in role_choices %}
         {% if role != username.role %}

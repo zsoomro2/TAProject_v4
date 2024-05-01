@@ -4,6 +4,7 @@ from classes.InstructorClass import Instructor
 
 
 class Supervisor:
+
     def __init__(self, username, password):
         self.username = username
         self.password = password

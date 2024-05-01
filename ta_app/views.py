@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import User, Roles, Course
+from .models import User, Roles, Course, Section
 from classes.Login import Login
 from classes.AddUser import AddUser
 from classes.EditClass import EditClass
@@ -23,9 +23,10 @@ class login(View):
                 user = User.objects.get(username=user.username)
                 user_list = User.objects.all()
                 course_list = Course.objects.all()
+                section_list = Section.objects.all()
                 return render(request, 'supervisor.html',
                               {'message': "You have logged in", 'user': user, 'user_list': user_list,
-                                      'course_list': course_list})
+                                      'course_list': course_list, 'section_list':section_list})
 
 
             elif user.getRole() == "Instructor":
@@ -70,7 +71,7 @@ class adduser(View):
         # Fetch all users regardless of the outcome to display the list of users
         context['user_list'] = User.objects.all()
         context['course_list'] = Course.objects.all()
-
+        context['section_list'] = Section.objects.all()
         return render(request, "supervisor.html", context)
 
 
@@ -78,7 +79,9 @@ class supervisor(View):
     def get(self, request):
         user_list = User.objects.all()
         course_list = Course.objects.all()
-        return render(request, 'supervisor.html',{'user_list': user_list, 'course_list': course_list})
+        section_list = Section.objects.all()
+        return render(request, 'supervisor.html',{'user_list': user_list, 'course_list': course_list
+                                                  , 'section_list':section_list})
 
 class user_page(View):
     def get(self, request):
@@ -125,6 +128,7 @@ class edit(View):
         isCourse = thing.isCourse()
         user_list = User.objects.all()
         course_list = Course.objects.all()
+        section_list = Section.objects.all()
         context = {}
 
         if isUser:
@@ -134,7 +138,8 @@ class edit(View):
             update = thing.updateCourse(request, username)
 
         if update:
-            context = {'user_list': user_list, 'course_list': course_list, 'message': "You have edited " + username}
+            context = {'user_list': user_list, 'course_list': course_list, 'section_list':section_list,
+                       'message': "You have edited " + username}
             return render(request, 'supervisor.html', context)
 
         else:
@@ -163,10 +168,15 @@ class Delete(View):
 
         elif thing.isCourse():
             course = Course.objects.get(Course_name=username)
+            sections = Section.objects.filter(Course=course)
+            for section in sections:
+                section.delete()
             course.delete()
 
         user_list = User.objects.all()
         course_list = Course.objects.all()
+        section_list = Section.objects.all()
         return render(request, 'supervisor.html', {'user_list': user_list,
-                                                   'course_list': course_list, 'message':"You have deleted " + username})
+                                                   'course_list': course_list, 'message':"You have deleted " + username,
+                                                   'section_list':section_list})
 
