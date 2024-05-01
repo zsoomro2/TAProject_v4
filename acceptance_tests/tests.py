@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.test import TestCase, Client
 from ta_app.models import User, Course
 

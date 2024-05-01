@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Supervisor Users page</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'table.css' %}">
+</head>
+    
+<body>
+    <header>Supervisor Users page</header>
+    <br>
+</head>
+<div class="w-75 p-3">
+    <strong><h1>User list:</h1></strong>
+  <table>
+    <thead>
+      <tr>
+         <th>Username</th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+          <th>Role</th>
+          <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for item in user_list %}
+      <tr>
+        <td>{{ item.username }}</td>
+        <td>{{ item.fname }}</td>
+        <td>{{ item.lname }}</td>
+        <td>{{ item.role }}</td>
+          <td><a class="btn btn-primary" href="{% url 'edit' item.username %}" role="button">Update</a>
+              <a class="btn btn-danger" href="{% url 'delete' item.username %}" role="button">Delete</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+{% endblock %}
