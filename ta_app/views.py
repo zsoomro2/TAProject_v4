@@ -38,6 +38,7 @@ class login(View):
                 return render(request, 'ta.html', {
                     'message': "You have logged in", 'user': user.username})
 
+
         if user_obj is None:
             return render(request, 'login.html',
                 {'message': "There was an error logging you in, please try again"})
