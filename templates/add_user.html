@@ -15,10 +15,10 @@
     
 <form method="post" action={% url 'adduser' %}>
     {% csrf_token %}
-    <p><input type="text" name = "username" class="form-control form-control" placeholder="Username"></p><br>
-    <p><input type="password" name = "password" class="form-control form-control" placeholder="Password"></p><br>
-    <p><input type="text" name = "fname" class="form-control form-control" placeholder="First Name"></p><br>
-    <p><input type="text" name = "lname" class="form-control form-control" placeholder="Last Name"></p><br>
+    <p><input type="text" name = "username" class="form-control form-control" placeholder="Username" required></p><br>
+    <p><input type="password" name = "password" class="form-control form-control" placeholder="Password" required></p><br>
+    <p><input type="text" name = "fname" class="form-control form-control" placeholder="First Name" required></p><br>
+    <p><input type="text" name = "lname" class="form-control form-control" placeholder="Last Name" required></p><br>
     <p><select name="role">
         <option selected> Role... </option>
     {% for role in role_choices %}

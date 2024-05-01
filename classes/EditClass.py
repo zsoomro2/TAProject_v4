@@ -1,6 +1,7 @@
 from ta_app.models import User, Course, Roles
 from .AddUser import AddUser
 
+
 class EditClass():
     def __init__(self, request, thing):
         self.thing = thing
