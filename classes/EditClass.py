@@ -41,22 +41,18 @@ class EditClass():
         return False
 
     def updateCourse(self, request, thing):
-        updated_course = [request.POST['CourseName'], request.POST['section'], request.POST['start'], request.POST['end']
-                          , request.POST['credits'], request.POST['instructor'], request.POST['ta']]
+        updated_course = [request.POST['CourseName'], request.POST['MeetType'], request.POST['course_desc']]
 
-        for data in updated_course:
-            if data == "" or data is None:
+        course_list = Course.objects.all()
+        for course in course_list:
+            if course.Course_name == thing:
+                continue
+            elif request.POST['CourseName'] == course.Course_name:
                 return False
-
-        update_course = Course.objects.get(Course_name=thing)
-        update_course.Course_name = updated_course[0]
-        update_course.Section = updated_course[1]
-        update_course.Start = updated_course[2]
-        update_course.End = updated_course[3]
-        update_course.credits = updated_course[4]
-        instructor = User.objects.get(username=request.POST['instructor'])
-        update_course.instructor = instructor
-        ta = User.objects.get(username=request.POST['ta'])
-        update_course.ta = ta
-        update_course.save()
+            else:
+                update_course = Course.objects.get(Course_name=thing)
+                update_course.Course_name = updated_course[0]
+                update_course.MeetType = updated_course[1]
+                update_course.Course_description = updated_course[2]
+                update_course.save()
         return True

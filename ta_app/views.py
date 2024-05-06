@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import User, Roles, Course, Section
+from .models import User, Roles, Course, Section, MeetType
 from classes.Login import Login
 from classes.AddUser import AddUser
 from classes.EditClass import EditClass
@@ -117,9 +117,9 @@ class edit(View):
 
         elif thing.isCourse():
             course = Course.objects.get(Course_name=username)
-            ta_list = User.objects.filter(role='TA')
-            instructor_list = User.objects.filter(role='Instructor')
-            context = {'username': course, 'ta_list': ta_list, 'instructor_list': instructor_list, 'isCourse':thing.isCourse()}
+            # ta_list = User.objects.filter(role='TA')
+            # instructor_list = User.objects.filter(role='Instructor')
+            context = {'username': course, 'isCourse':thing.isCourse(), 'MeetType':MeetType.choices}
             return render(request, 'edit.html', context)
 
     def post(self, request, username):
@@ -147,7 +147,7 @@ class edit(View):
                 user = User.objects.get(username=username)
                 context = {'username':user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
 
-            elif isCourse():
+            elif isCourse:
                 course = Course.objects.get(Course_name=username)
                 ta_list = User.objects.filter(role='TA')
                 instructor_list = User.objects.filter(role='Instructor')
@@ -180,3 +180,9 @@ class Delete(View):
                                                    'course_list': course_list, 'message':"You have deleted " + username,
                                                    'section_list':section_list})
 
+class ViewCourse(View):
+    def get(self, request, course_name):
+        course = Course.objects.filter(Course_name=course_name)
+        section_list = Section.objects.all()
+        return render(request, 'viewcourse.html', {'course_list': course,
+                                                   'section_list':section_list, 'course_name':course_name})

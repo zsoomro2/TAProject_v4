@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'table.css' %}">
+</head>
+    
+    <header>{{ course_name }} Course page</header>
+    <br>
+</head>
+<div class="w-50 p-3">
+  <h4>{{ course_name }} Data:</h4>
+  <table>
+    <thead>
+      <tr>
+          <th>Course Name</th>
+          <th>Meet Type</th>
+          <th>Sections</th>
+          <th>Description</th>
+      </tr>
+    </thead>
+      <tbody>
+            {% for course in course_list %}
+                <tr>
+                <td>{{ course.Course_name }}</td>
+                <td>{{ course.MeetType }}</td>
+                <td>
+                {% for section in section_list %}
+                    {% if section.Course.Course_name == course.Course_name %}
+                        {{ section.section_number }}
+                    {% endif %}
+                {% endfor %}
+                </td>
+                <td>{{ course.Course_description }}</td>
+                </tr>
+            {% endfor %}
+                </tbody>
+    </table>
+</div>
+    
+    <div class="w-90 p-3">
+  <h4>{{ course_name }} Section List:</h4>
+  <table>
+    <thead>
+      <tr>
+          <th>Section Number</th>
+          <th>Lecture/Lab</th>
+          <th>Start date</th>
+          <th>End date</th>
+          <th>Credits</th>
+          <th>Instructor</th>
+          <th>TA</th>
+          <th>Actions</th>
+      </tr>
+    </thead>
+      <tbody>
+            {% for section in section_list %}
+                {% if section.Course.Course_name == course_name %}
+                <tr>
+                <td>{{ section.section_number }}</td>
+                <td>{{ section.LecLab }}</td>
+                <td>{{ section.start }}</td>
+                <td>{{ section.end }}</td>
+                <td>{{ section.credits }}</td>
+                <td>{{ section.instructor }}</td>
+                <td>{{ section.ta }}</td>
+                <td><a class="btn btn-primary" href="#" role="button">Update</a>
+                    <a class="btn btn-danger" href="#" role="button">Delete</a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+                </tbody>
+    </table>
+        <br>
+</div>
+{% endblock %}

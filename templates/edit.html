@@ -25,10 +25,12 @@
        <p><label>Last Name:</label></lable><input type="text" id="text" name = "lname" class="form-control form-control" 
                                                   value="{{ username.lname }}" required></p><br>
         
-        <p><label>Role: </label><select name="role"><option selected> {{ username.role }} </option>
+        <p><label>Role: </label><select name="role">
     {% for role in role_choices %}
         {% if role != username.role %}
-        <option value="{{ role }}">{{ role }}</option>
+        <option value="{{ role.0 }}">{{ role.0 }}</option>
+        {% else %}
+        <option selected>{{ role.0 }}</option>        
         {% endif %}
     {% endfor %}
     </select></p><br><br>
@@ -36,36 +38,21 @@
     {% elif isCourse %}
         <h3> Edit "{{ username.Course_name }}"</h3>
         <br>
-        <p><label>Course Name:</label><input type="text" id="text" name = "CourseName" class="form-control form-control"
+        
+        <p><label>Course Name:</label><input required type="text" id="text" name = "CourseName" class="form-control form-control"
                                              value="{{ username.Course_name }}"></p><br>
-
-       <p><label>Section:</label><input type="text" id="text" name = "section" class="form-control form-control"
-                                         value="{{ username.section }}"></p><br>
-
-       <p><label>Start Date:</label><input type="datetime" id="text" name = "start" class="form-control form-control"
-                                           value="{{ username.start }}"></p><br>
-
-       <p><label>End Date:</label></lable><input type="datetime" id="text" name = "end" class="form-control form-control"
-                                                  value="{{ username.end }}"></p><br>
-
-        <p><label>Credits:</label></lable><input type="number" id="text" name = "credits" class="form-control form-control"
-                                                  value="{{ username.credits }}"></p><br>
-
-       <label>Instructor: </label><p><select name="instructor"><option selected> {{ username.instructor }} </option>
-    {% for instructor in instructor_list %}
-        {% if instructor.username != username.instructor.username %}
-        <option value="{{ instructor.username }}">{{ instructor.username }}</option>
-        {% endif %}
+        
+     <p><label>Meet Type:</label><br><select name="MeetType">   
+         <option selected>{{ username.MeetType }}</option>
+    {% for item in MeetType %}
+            <option value="{{ item.0 }}">{{ item.0 }}</option>  
     {% endfor %}
-    </select></p>
+    </select></p><br>
 
-     <label>TA:</label><p><select name="ta"><option selected>{{ username.ta }} </option>
-    {% for ta in ta_list %}
-        {% if ta.username != username.ta.username %}
-        <option value="{{ ta.username }}">{{ ta.username }}</option>
-        {% endif %}
-    {% endfor %}
-    </select></p>
+       <p><label>Description:</label><br>
+        <textarea name="course_desc" rows="5" cols="50">
+{{ username.Course_description }}
+        </textarea><br>
 
        {% endif %}
        <input type="submit" value="Update" class="btn btn-primary"><br>
