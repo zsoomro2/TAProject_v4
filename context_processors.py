@@ -1,5 +1,5 @@
-from classes.User import User
+from classes.User import MyUser
 
 def user(request):
-    return {'user': User(request, User.get_username, User.get_password, User.get_firstName, User.get_lastName,
-                         User.get_phone, User.get_role)}
+    return {'user': MyUser(request, MyUser.get_username, MyUser.get_password, MyUser.get_firstName, MyUser.get_lastName,
+                         MyUser.get_phone, MyUser.get_role)}

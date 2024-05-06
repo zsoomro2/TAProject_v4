@@ -4,12 +4,14 @@ from .models import User, Roles, Course, Section
 from classes.Login import Login
 from classes.AddUser import AddUser
 from classes.EditClass import EditClass
+from classes.User import MyUser
 from django.http import HttpResponseRedirect
 
 
 # Create your views here.
 
 class login(View):
+
     def get(self, request):
         return render(request, "login.html", {})
 
@@ -38,11 +40,14 @@ class login(View):
                 user = User.objects.get(username=user.username)
                 return render(request, 'ta.html', {
                     'message': "You have logged in", 'user': user.username})
+        request.session.set_expiry(300)
 
 
         if user_obj is None:
             return render(request, 'login.html',
                 {'message': "There was an error logging you in, please try again"})
+
+
 
 
 class adduser(View):

@@ -1,4 +1,5 @@
-class User:
+from ta_app.models import User
+class MyUser:
 
     def __init__(self, request, username, password, firstName, lastName, phone, role):
         self.username = username
@@ -31,3 +32,13 @@ class User:
 
     def get_role(self):
         return self.role
+
+    def get_session(self):
+        return self.session
+
+    def find_user(self, username):
+        try:
+            user = User.objects.get(username=username)
+            return user
+        except User.DoesNotExist:
+            return None
