@@ -1,4 +1,7 @@
+from django.contrib.sites import requests
+
 from ta_app.models import User
+from classes.User import MyUser
 
 
 class Login:
