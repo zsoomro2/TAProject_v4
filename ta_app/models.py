@@ -38,9 +38,8 @@ class User(models.Model):
 # DATETIME FIELD EXAMPLE: 4/25/2024 12:00 AM
 class Course(models.Model):
     Course_name = models.CharField(max_length=100)
-    Course_description = models.TextField(max_length=1000, null=True, blank=True)
+    Course_description = models.TextField(max_length=500, null=True, blank=True)
     MeetType = models.CharField(max_length=20, choices=MeetType.choices, default=MeetType.InPerson)
-    # section = models.ManyToManyField("Section")
 
     def __str__(self):
         return self.Course_name

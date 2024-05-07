@@ -32,3 +32,9 @@ select {
   box-sizing: border-box;
 }
 
+textarea {
+  display: block;
+  resize: horizontal;
+  max-width: 500px;
+  width: auto;
+}

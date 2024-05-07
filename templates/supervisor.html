@@ -11,7 +11,6 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'table.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'super.css' %}">
 </head>
 <body>
     <header>Supervisor Homepage</header>
@@ -45,7 +44,8 @@
                 </td>
                 <td><a class="btn btn-primary" href="{% url 'edit' course.Course_name %}" role="button">Update</a>
                     <a class="btn btn-danger" href="{% url 'delete' course.Course_name %}" role="button">Delete</a>
-                    <a class="btn btn-info" href="#">View</a></td>
+                    <a class="btn btn-info" href="{% url 'viewcourse' course.Course_name %}" role="button">View</a>
+                    <a class="btn btn-warning" href="#">Add Section</a></td>
                 </tr>
             {% endfor %}
                 </tbody>
