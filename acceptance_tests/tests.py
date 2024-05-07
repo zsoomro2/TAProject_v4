@@ -75,3 +75,21 @@ class AddUserTestCase(TestCase):
 
 class LogoutTest(TestCase):
     client = None
+
+    def test_logoutSupervisor(self):
+        self.client.post('', {'username': 'test1@test', 'password': 'PASSWORD', 'role': 'Supervisor'})
+        resp = self.client.post('/logout/', {'username': 'test1@test', 'password': 'PASSWORD'})
+        self.assertEqual(resp.status_code, 405)
+
+    def test_logoutInstructor(self):
+        self.client.post('', {'username': 'test2@test', 'password': 'PASSWORD', 'role': 'Instructor'})
+        resp = self.client.post('/logout/', {'username': 'test2@test', 'password': 'PASSWORD'})
+        self.assertEqual(resp.status_code, 405)
+
+    def test_logoutTA(self):
+        self.client.post('', {'username': 'test3@test', 'password': 'PASSWORD', 'role': 'TA'})
+        resp = self.client.post('/logout/', {'username': 'test3@test', 'password': 'PASSWORD'})
+        self.assertEqual(resp.status_code, 405)
+
+
+
