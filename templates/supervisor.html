@@ -14,7 +14,7 @@
 </head>
 <body>
     <header>Supervisor Homepage</header>
-    <h3>Hello {{ user.fname }} {{ user.lname }}</h3>
+    <h1>Hello {{ current_user.fname }} {{ current_user.lname }}</h1>
     <br>
             <div style="text-align: left;">
 </head>
@@ -79,6 +79,16 @@
     {% endfor %}
     </tbody>
   </table>
+<!-- Display Session Information -->
+<h2>Session Information</h2>
+<ul>
+    <li>User ID: {{ request.session.user_id|default:"No User ID" }}</li>
+    <li>Role: {{ request.session.role|default:"No Role Found" }}</li>
+    <li>Session Key: {{ request.session.session_key|default:"None" }}</li>
+</ul>
+<br>
+<a href="{% url 'viewassignments' %}" class="btn btn-primary">View All Assignments</a>
+
 </div>
     </div>
 </body>

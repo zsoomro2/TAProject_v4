@@ -16,35 +16,26 @@ class login(View):
         return render(request, "login.html", {})
 
     def post(self, request):
-        user = Login(request.POST['username'], request.POST['password'])
-        user_obj = user.findUser(user.username, user.password)
+        username = request.POST['username']
+        password = request.POST['password']
+        user = Login(username, password)
+        user_obj = user.findUser(username, password)
 
-        # create user_obj to grab a user/None type
         if user_obj is not None:
-            if user.getRole() == "Supervisor":
-                user = User.objects.get(username=user.username)
-                user_list = User.objects.all()
-                course_list = Course.objects.all()
-                section_list = Section.objects.all()
-                return render(request, 'supervisor.html',
-                              {'message': "You have logged in", 'user': user, 'user_list': user_list,
-                               'course_list': course_list, 'section_list': section_list})
+            request.session.flush()
+            request.session['user_id'] = user_obj.id
+            request.session['role'] = user_obj.role
+            request.session.set_expiry(300)  # Session expires in 5 minutes
+            request.session.modified = True
 
-
-            elif user.getRole() == "Instructor":
-                user = User.objects.get(username=user.username)
-                return render(request, 'instructor.html',
-                              {'message': "You have logged in", 'user': user.username})
-
-            else:
-                user = User.objects.get(username=user.username)
-                return render(request, 'ta.html', {
-                    'message': "You have logged in", 'user': user.username})
-        request.session.set_expiry(300)
-
-        if user_obj is None:
-            return render(request, 'login.html',
-                          {'message': "There was an error logging you in, please try again"})
+            if user_obj.role == "Supervisor":
+                return redirect('supervisor')
+            elif user_obj.role == "Instructor":
+                return redirect('instructor')
+            elif user_obj.role == "TA":
+                return redirect('ta')
+        else:
+            return render(request, 'login.html', {'message': "Login failed. Please try again."})
 
 
 class adduser(View):
@@ -82,8 +73,11 @@ class supervisor(View):
         user_list = User.objects.all()
         course_list = Course.objects.all()
         section_list = Section.objects.all()
+        user_id = request.session.get('user_id')
+
+        current_user = User.objects.get(id=user_id)
         return render(request, 'supervisor.html', {'user_list': user_list, 'course_list': course_list
-            , 'section_list': section_list})
+            , 'section_list': section_list,'current_user': current_user})
 
 
 class user_page(View):
