@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 
 
@@ -12,10 +13,12 @@ class Roles(models.TextChoices):
     Instructor = "Instructor"
     Supervisor = "Supervisor"
 
+
 class MeetType(models.TextChoices):
     Online = "Online"
     InPerson = "In Person"
     Hybird = "Hybird"
+
 
 class LecLab(models.TextChoices):
     Lecture = "Lecture"
@@ -44,6 +47,7 @@ class Course(models.Model):
     def __str__(self):
         return self.Course_name
 
+
 class Section(models.Model):
     Course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True, related_name="course")
     section_number = models.IntegerField()
@@ -56,4 +60,3 @@ class Section(models.Model):
 
     def __str__(self):
         return str(self.section_number)
-
