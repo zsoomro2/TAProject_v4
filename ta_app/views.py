@@ -28,7 +28,7 @@ class login(View):
                 section_list = Section.objects.all()
                 return render(request, 'supervisor.html',
                               {'message': "You have logged in", 'user': user, 'user_list': user_list,
-                                      'course_list': course_list, 'section_list':section_list})
+                               'course_list': course_list, 'section_list': section_list})
 
 
             elif user.getRole() == "Instructor":
@@ -42,12 +42,9 @@ class login(View):
                     'message': "You have logged in", 'user': user.username})
         request.session.set_expiry(300)
 
-
         if user_obj is None:
             return render(request, 'login.html',
-                {'message': "There was an error logging you in, please try again"})
-
-
+                          {'message': "There was an error logging you in, please try again"})
 
 
 class adduser(View):
@@ -85,13 +82,14 @@ class supervisor(View):
         user_list = User.objects.all()
         course_list = Course.objects.all()
         section_list = Section.objects.all()
-        return render(request, 'supervisor.html',{'user_list': user_list, 'course_list': course_list
-                                                  , 'section_list':section_list})
+        return render(request, 'supervisor.html', {'user_list': user_list, 'course_list': course_list
+            , 'section_list': section_list})
+
 
 class user_page(View):
     def get(self, request):
         user_list = User.objects.all()
-        return render(request, 'editUser.html',{'user_list': user_list})
+        return render(request, 'editUser.html', {'user_list': user_list})
 
 
 class instructor(View):
@@ -112,19 +110,20 @@ class LogoutView(View):
             del request.session[key]
         return HttpResponseRedirect('/')  # Redirect to the homepage or login page
 
+
 class edit(View):
     def get(self, request, username):
         thing = EditClass(request, username)
         if thing.isUser():
             user = User.objects.get(username=username)
-            return render(request, 'edit.html', {'username': user, 'role_choices':Roles.choices,
-                          'isUser':thing.isUser()})
+            return render(request, 'edit.html', {'username': user, 'role_choices': Roles.choices,
+                                                 'isUser': thing.isUser()})
 
         elif thing.isCourse():
             course = Course.objects.get(Course_name=username)
             # ta_list = User.objects.filter(role='TA')
             # instructor_list = User.objects.filter(role='Instructor')
-            context = {'username': course, 'isCourse':thing.isCourse(), 'MeetType':MeetType.choices}
+            context = {'username': course, 'isCourse': thing.isCourse(), 'MeetType': MeetType.choices}
             return render(request, 'edit.html', context)
 
     def post(self, request, username):
@@ -143,27 +142,28 @@ class edit(View):
             update = thing.updateCourse(request, username)
 
         if update:
-            context = {'user_list': user_list, 'course_list': course_list, 'section_list':section_list,
+            context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
                        'message': "You have edited " + username}
             return render(request, 'supervisor.html', context)
 
         else:
             if isUser:
                 user = User.objects.get(username=username)
-                context = {'username':user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
+                context = {'username': user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
 
             elif isCourse:
                 course = Course.objects.get(Course_name=username)
                 ta_list = User.objects.filter(role='TA')
                 instructor_list = User.objects.filter(role='Instructor')
                 context = {'username': course, 'ta_list': ta_list, 'instructor_list': instructor_list,
-                           'isCourse': thing.isCourse(), 'message':"There was an error updating the course"}
+                           'isCourse': thing.isCourse(), 'message': "There was an error updating the course"}
 
         return render(request, 'edit.html', context)
 
+
 class Delete(View):
     def get(self, request, username):
-        return render(request, 'delete.html', {'username':username})
+        return render(request, 'delete.html', {'username': username})
 
     def post(self, request, username):
         thing = EditClass(request, username)
@@ -182,12 +182,42 @@ class Delete(View):
         course_list = Course.objects.all()
         section_list = Section.objects.all()
         return render(request, 'supervisor.html', {'user_list': user_list,
-                                                   'course_list': course_list, 'message':"You have deleted " + username,
-                                                   'section_list':section_list})
+                                                   'course_list': course_list,
+                                                   'message': "You have deleted " + username,
+                                                   'section_list': section_list})
+
 
 class ViewCourse(View):
     def get(self, request, course_name):
         course = Course.objects.filter(Course_name=course_name)
         section_list = Section.objects.all()
         return render(request, 'viewcourse.html', {'course_list': course,
-                                                   'section_list':section_list, 'course_name':course_name})
+                                                   'section_list': section_list, 'course_name': course_name})
+
+
+class viewAssignments(View):
+    def get(self, request):
+        users = User.objects.all()
+        assignments = []
+
+        for user in users:
+            sections_as_ta = Section.objects.filter(ta=user)
+            sections_as_instructor = Section.objects.filter(instructor=user)
+
+            if not sections_as_ta.exists() and not sections_as_instructor.exists():
+                assignments.append({
+                    'user': f"{user.fname} {user.lname}",
+                    'sections': 'No current assignments'
+                })
+            else:
+                all_sections = sections_as_ta | sections_as_instructor
+                for section in all_sections:
+                    assignments.append({
+                        'user': f"{user.fname} {user.lname}",
+                        'course_name': section.Course.Course_name,
+                        'section_number': section.section_number,
+                        'instructor': f"{section.instructor.fname} {section.instructor.lname}" if section.instructor else "No instructor",
+                        'ta': f"{section.ta.fname} {section.ta.lname}" if section.ta else "No TA"
+                    })
+
+        return render(request, "viewAssignments.html", {'assignments': assignments})
