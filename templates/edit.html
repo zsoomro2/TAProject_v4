@@ -25,9 +25,10 @@
        <p><label>Last Name:</label></lable><input type="text" id="text" name = "lname" class="form-control form-control" 
                                                   value="{{ username.lname }}" required></p><br>
         
-        <p><label>Role: </label><select name="role">
+        <p><label>Role: </label><br>
+            <select name="role">
     {% for role in role_choices %}
-        {% if role != username.role %}
+        {% if role.0 != username.role %}
         <option value="{{ role.0 }}">{{ role.0 }}</option>
         {% else %}
         <option selected>{{ role.0 }}</option>        
@@ -42,10 +43,13 @@
         <p><label>Course Name:</label><input required type="text" id="text" name = "CourseName" class="form-control form-control"
                                              value="{{ username.Course_name }}"></p><br>
         
-     <p><label>Meet Type:</label><br><select name="MeetType">   
+     <p><label>Meet Type:</label><br>
+         <select name="MeetType">  
          <option selected>{{ username.MeetType }}</option>
     {% for item in MeetType %}
-            <option value="{{ item.0 }}">{{ item.0 }}</option>  
+        {% if item.0 != username.MeetType %}
+            <option value="{{ item.0 }}">{{ item.0 }}</option> 
+        {% endif %}
     {% endfor %}
     </select></p><br>
 

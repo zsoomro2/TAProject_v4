@@ -11,7 +11,8 @@ input[type=password] {
   margin: 8px 0;
   box-sizing: border-box;
 }
-input[type=datetime] {
+
+input[type=datetime-local] {
   width: 290px;
   padding: 12px 20px;
   margin: 8px 0;

@@ -1,0 +1,39 @@
+<html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <body>
+    <div style=" text-align: left;">
+    <meta charset="UTF-8">
+    <title>Add Courses</title><br>
+
+<h1> Add Course To Database</h1>
+<br/>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
+    
+<form method="post" action={% url 'addcourse' %}>
+    {% csrf_token %}
+    <label>Course Name:</label><br>
+    <p><input type="text" name="CourseName" class="form-control form-control" placeholder="Course Name" required></p><br>
+
+<label>Meet Type:</label><br>
+        <p><select name="MeetType" required>
+            {% for item in MeetType %}
+                <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+            </select></p><br>
+        
+        <p><label>Course Description:</label><br>
+            <textarea name="coursedesc" rows="5" cols="10" maxlength="500" 
+                      placeholder="This is a Description of this course"></textarea></p><br>
+
+    <a href={% url 'supervisor' %}> <input type="submit" value="Submit" class="btn btn-primary"></a>
+</form>
+     <div class="course-list">
+</div>
+    </div>
+{% endblock %}
+</body>
+</html>

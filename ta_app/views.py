@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import User, Roles, Course, Section, MeetType
+
+from classes.InstructorClass import Instructor
+from .models import User, Roles, Course, Section, MeetType, LecLab
 from classes.Login import Login
 from classes.AddUser import AddUser
 from classes.EditClass import EditClass
 from classes.User import MyUser
 from django.http import HttpResponseRedirect
+from datetime import datetime, timezone
 
 
 # Create your views here.
@@ -75,10 +78,16 @@ class supervisor(View):
         section_list = Section.objects.all()
         user_id = request.session.get('user_id')
 
-        current_user = User.objects.get(id=user_id)
-        return render(request, 'supervisor.html', {'user_list': user_list, 'course_list': course_list
-            , 'section_list': section_list,'current_user': current_user})
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
 
+        if current_user and current_user.role == "Supervisor":
+            return render(request, 'supervisor.html', {'user_list': user_list, 'course_list': course_list
+                ,'section_list': section_list,'current_user': current_user})
+        else:
+            return render(request, 'login.html', {'message': 'Please login to view this page'})
 
 class user_page(View):
     def get(self, request):
@@ -115,8 +124,6 @@ class edit(View):
 
         elif thing.isCourse():
             course = Course.objects.get(Course_name=username)
-            # ta_list = User.objects.filter(role='TA')
-            # instructor_list = User.objects.filter(role='Instructor')
             context = {'username': course, 'isCourse': thing.isCourse(), 'MeetType': MeetType.choices}
             return render(request, 'edit.html', context)
 
@@ -215,3 +222,123 @@ class viewAssignments(View):
                     })
 
         return render(request, "viewAssignments.html", {'assignments': assignments})
+
+class addCourse(View):
+    def get(self, request):
+        return render(request, "addCourse.html", {'MeetType':MeetType})
+
+    def post(self, request):
+        context = {}
+        name = request.POST["CourseName"]
+        meet = request.POST["MeetType"]
+        desc = request.POST["coursedesc"]
+
+        course_list = Course.objects.all()
+        for course in course_list:
+            if course.Course_name == name:
+                context["message"] = "Course already exists"
+                context["MeetType"] = MeetType
+                return render(request, "addCourse.html", context)
+        new_course = Course(Course_name=name, MeetType=meet, Course_description=desc)
+        new_course.save()
+
+        context["message"] = "You have successfully added " + name
+        context["user_list"] = User.objects.all()
+        context["course_list"] = Course.objects.all()
+        context["section_list"] = Section.objects.all()
+        return render(request, "supervisor.html", context)
+
+class addSection(View):
+    def get(self, request, course_name):
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        course_data = Course.objects.filter(Course_name=course_name)
+        instructor_list = User.objects.filter(role="Instructor")
+        ta_list = User.objects.filter(role="TA")
+        if current_user and current_user.role == "Supervisor":
+            return render(request, "addSection.html", {"course_data": course_data, "name":course_name,
+                                            "LecLab":LecLab, "instructor_list": instructor_list, "ta_list": ta_list})
+        else:
+            return render(request, "login.html", {"message": "You have to login to view this page"})
+    def post(self, request, course_name):
+        context = {}
+        course = course_name
+        sec_num = request.POST["sec_num"]
+        LecLab_obj = request.POST["LecLab"]
+        start = request.POST["start"]
+        end = request.POST["end"]
+        credits = request.POST["credits"]
+        start_date = datetime.strptime(start, "%Y-%m-%dT%H:%M").date()
+        end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M").date()
+        start_time = datetime.strptime(start, "%Y-%m-%dT%H:%M").time()
+        end_time = datetime.strptime(end, "%Y-%m-%dT%H:%M").time()
+
+        instructor = request.POST["instructor"]
+        if instructor != "":
+            instructor = User.objects.get(username=instructor)
+        else:
+            instructor = None
+
+        ta = request.POST["ta"]
+        if ta != "":
+            ta = User.objects.get(username=ta)
+        else:
+            ta = None
+
+        course_obj = Course.objects.get(Course_name=course)
+        section_list = Section.objects.filter(Course=course_obj.id)
+
+        for section in section_list:
+            if str(request.POST["sec_num"]) == str(section.section_number):
+                context['message'] = "A section with this number already exists"
+                context['course_data'] = Course.objects.filter(Course_name=course)
+                context['name'] = course_name
+                context['LecLab'] = LecLab
+                context['instructor_list'] = User.objects.filter(role="Instructor")
+                context['ta_list'] = User.objects.filter(role="TA")
+                return render(request, "addSection.html", context)
+            if start_date > end_date or (start_date == end_date and start_time > end_time):
+                context['message'] = "Cannot have start date/time after end"
+                context['course_data'] = Course.objects.filter(Course_name=course)
+                context['name'] = course_name
+                context['LecLab'] = LecLab
+                context['instructor_list'] = User.objects.filter(role="Instructor")
+                context['ta_list'] = User.objects.filter(role="TA")
+                return render(request, "addSection.html", context)
+
+
+        new_section = Section.objects.create(Course=course_obj, section_number=sec_num, LecLab=LecLab_obj, start=start, end=end,
+                                             credits=credits, instructor=instructor, ta=ta)
+        new_section.save()
+        context['message'] = "You have added " + str(sec_num) + " to " + course_name
+        context['user_list'] = User.objects.all()
+        context['course_list'] = Course.objects.all()
+        context['section_list'] = Section.objects.all()
+        return render(request, "supervisor.html", context)
+
+class updateSection(View):
+    def get(self, request, course_name, section_number):
+
+        course = Course.objects.get(Course_name=course_name)
+        section_list = Section.objects.filter(Course=course.id)
+        ta_list = User.objects.filter(role="TA")
+        instructor_list = User.objects.filter(role="Instructor")
+
+        section = None
+        for item in section_list:
+            if str(item.section_number) == str(section_number):
+                section = Section.objects.get(section_number=section_number)
+                start = section.start
+                start.replace(tzinfo=None)
+                end = section.end
+                end.replace(tzinfo=None)
+                start_date = datetime.strptime(str(start), "%Y-%m-%d %H:%M:%S%z")
+                end_date = datetime.strptime(str(end), "%Y-%m-%d %H:%M:%S%z")
+        return render(request, "updatesection.html", {"section": section, "name": course_name,
+                    "ta_list": ta_list, "instructor_list":instructor_list, "LecLab":LecLab, "start_date":start_date, "end_date":end_date})
+    def post(self, request, course_name, section_number):
+        pass
