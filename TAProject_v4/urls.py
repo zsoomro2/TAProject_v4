@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from ta_app.views import (login, supervisor, instructor, ta,
-                          adduser, LogoutView, edit, Delete, user_page, ViewCourse, viewAssignments)
+                          adduser, LogoutView, edit, Delete, user_page, ViewCourse, viewAssignments, addCourse,
+                          addSection, updateSection)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,8 @@ urlpatterns = [
     path('user_page.html/', user_page.as_view(), name='userpage'),
     path('view_page.html/<str:course_name>', ViewCourse.as_view(), name='viewcourse'),
     path('viewassignments/', viewAssignments.as_view(), name='viewassignments'),
+    path('addcourse/', addCourse.as_view(), name='addcourse'),
+    path('addsection/<str:course_name>', addSection.as_view(), name='addsection'),
+    path('addsection/<str:course_name>/<int:section_number>', updateSection.as_view(), name='updatesection'),
+
 ]
