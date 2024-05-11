@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
 from django.views import View
-
-from classes.InstructorClass import Instructor
 from .models import User, Roles, Course, Section, MeetType, LecLab
 from classes.Login import Login
 from classes.AddUser import AddUser
@@ -18,7 +16,6 @@ def redirect_to_role_home(request):
 
 
 class login(View):
-
     def get(self, request):
         return render(request, "login.html", {})
 
@@ -32,7 +29,7 @@ class login(View):
             request.session.flush()
             request.session['user_id'] = user_obj.id
             request.session['role'] = user_obj.role
-            request.session.set_expiry(300)  # Session expires in 5 minutes
+            request.session.set_expiry(1000)
             request.session.modified = True
 
             return redirect_to_role_home(request)
@@ -58,8 +55,15 @@ class adduser(View):
         context = {'role_choices': Roles.choices}
 
         if isvalid and not check:
-            User.objects.create(username=new_user.username, password=new_user.password, fname=new_user.fname,
-                                lname=new_user.lname, role=new_user.role)
+            user = User.objects.create(username=new_user.username, password=new_user.password, fname=new_user.fname,
+                                       lname=new_user.lname, role=new_user.role)
+            user.java_skill = 'java_skill' in request.POST
+            user.python_skill = 'python_skill' in request.POST
+            user.frontend_skill = 'frontend_skill' in request.POST
+            user.backend_skill = 'backend_skill' in request.POST
+            user.scala_skill = 'scala_skill' in request.POST
+            user.discrete_math_skill = 'discrete_math_skill' in request.POST
+            user.save()
             context['message'] = "You have successfully added " + new_user.username
         elif check:
             context['message'] = "User already exists"
@@ -86,12 +90,16 @@ class supervisor(View):
         except User.DoesNotExist:
             current_user = None
 
-
         if current_user and current_user.role == "Supervisor":
-            return render(request, 'supervisor.html', {'user_list': user_list, 'course_list': course_list
-                ,'section_list': section_list,'current_user': current_user})
+            return render(request, 'supervisor.html', {
+                'user_list': user_list,
+                'course_list': course_list,
+                'section_list': section_list,
+                'current_user': current_user
+            })
         else:
             return render(request, 'login.html', {'message': 'Please login to view this page'})
+
 
 class user_page(View):
     def get(self, request):
@@ -113,7 +121,18 @@ class ta(View):
     def get(self, request):
         if request.session.get('role') != 'TA':
             return redirect_to_role_home(request)
-        return render(request, "ta.html", {})
+        try:
+            ta_user = User.objects.get(id=request.session['user_id'])
+            sections_as_ta = Section.objects.filter(ta=ta_user)
+            sections_as_instructor = Section.objects.filter(instructor=ta_user)
+            sections = sections_as_ta.union(sections_as_instructor)  # Combine both querysets
+
+            return render(request, "ta.html", {
+                'ta': ta_user,
+                'sections': sections
+            })
+        except User.DoesNotExist:
+            return redirect('login')
 
 
 class LogoutView(View):
@@ -128,8 +147,7 @@ class edit(View):
     def get(self, request, username):
         thing = EditClass(request, username)
         if thing.isUser():
-            if request.session.get('role') != 'Supervisor':
-                return redirect_to_role_home(request)
+
             user = User.objects.get(username=username)
             return render(request, 'edit.html', {'username': user, 'role_choices': Roles.choices,
                                                  'isUser': thing.isUser()})
@@ -151,26 +169,27 @@ class edit(View):
         context = {}
 
         if isUser:
-            if request.session.get('role') != 'Supervisor':
-                return redirect_to_role_home(request)
+
+            print(f"Updating user: {username} with data: {request.POST}")
             update = thing.updateUser(request, username)
+
+            if update:
+                context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
+                           'message': f"You have edited {username}"}
+            else:
+                user = User.objects.get(username=username)
+                context = {'username': user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
 
         elif isCourse:
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
+            print(f"Updating course: {username} with data: {request.POST}")
             update = thing.updateCourse(request, username)
 
-        if update:
-            context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
-                       'message': "You have edited " + username}
-            return render(request, 'supervisor.html', context)
-
-        else:
-            if isUser:
-                user = User.objects.get(username=username)
-                context = {'username': user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
-
-            elif isCourse:
+            if update:
+                context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
+                           'message': f"You have edited {username}"}
+            else:
                 course = Course.objects.get(Course_name=username)
                 ta_list = User.objects.filter(role='TA')
                 instructor_list = User.objects.filter(role='Instructor')
@@ -178,7 +197,6 @@ class edit(View):
                            'isCourse': thing.isCourse(), 'message': "There was an error updating the course"}
 
         return render(request, 'edit.html', context)
-
 
 class Delete(View):
     def get(self, request, username):
@@ -249,9 +267,12 @@ class viewAssignments(View):
 
         return render(request, "viewAssignments.html", {'assignments': assignments})
 
+
 class addCourse(View):
     def get(self, request):
-        return render(request, "addCourse.html", {'MeetType':MeetType})
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
+        return render(request, "addCourse.html", {'MeetType': MeetType})
 
     def post(self, request):
         context = {}
@@ -274,6 +295,7 @@ class addCourse(View):
         context["section_list"] = Section.objects.all()
         return render(request, "supervisor.html", context)
 
+
 class addSection(View):
     def get(self, request, course_name):
         user_id = request.session.get('user_id')
@@ -283,13 +305,34 @@ class addSection(View):
             current_user = None
 
         course_data = Course.objects.filter(Course_name=course_name)
+        course = Course.objects.get(Course_name=course_name)
+
+        # Define instructor_list and ta_list
         instructor_list = User.objects.filter(role="Instructor")
-        ta_list = User.objects.filter(role="TA")
+        ta_list = User.objects.filter(role="TA").distinct()
+
+        # Format instructor and TA lists
+        formatted_instructor_list = [
+            f"{user.fname} {user.lname}"
+            for user in instructor_list
+        ]
+
+        formatted_ta_list = [
+            f"{user.fname} {user.lname} (Skills: {', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'None'})"
+            for user in ta_list
+        ]
+
         if current_user and current_user.role == "Supervisor":
-            return render(request, "addSection.html", {"course_data": course_data, "name":course_name,
-                                            "LecLab":LecLab, "instructor_list": instructor_list, "ta_list": ta_list})
+            return render(request, "addSection.html", {
+                "course_data": course_data,
+                "name": course_name,
+                "LecLab": LecLab,
+                "instructor_list": formatted_instructor_list,
+                "ta_list": formatted_ta_list
+            })
         else:
             return render(request, "login.html", {"message": "You have to login to view this page"})
+
     def post(self, request, course_name):
         context = {}
         course = course_name
@@ -303,20 +346,40 @@ class addSection(View):
         start_time = datetime.strptime(start, "%Y-%m-%dT%H:%M").time()
         end_time = datetime.strptime(end, "%Y-%m-%dT%H:%M").time()
 
-        instructor = request.POST["instructor"]
-        if instructor != "":
-            instructor = User.objects.get(username=instructor)
-        else:
+        instructor_str = request.POST.get("instructor", "")
+        ta_str = request.POST.get("ta", "")
+
+        # Extract username from formatted strings
+        instructor_username = instructor_str.split(' ')[0] if instructor_str else ""
+        ta_username = ta_str.split(' ')[0] if ta_str else ""
+
+        try:
+            instructor = User.objects.get(username=instructor_username) if instructor_username else None
+        except User.DoesNotExist:
             instructor = None
 
-        ta = request.POST["ta"]
-        if ta != "":
-            ta = User.objects.get(username=ta)
-        else:
+        try:
+            ta = User.objects.get(username=ta_username) if ta_username else None
+        except User.DoesNotExist:
             ta = None
 
         course_obj = Course.objects.get(Course_name=course)
         section_list = Section.objects.filter(Course=course_obj.id)
+
+        # Define instructor_list and ta_list again
+        instructor_list = User.objects.filter(role="Instructor")
+        ta_list = User.objects.filter(role="TA").distinct()
+
+        # Format instructor and TA lists
+        formatted_instructor_list = [
+            f"{user.fname} {user.lname} ({', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
+            for user in instructor_list
+        ]
+
+        formatted_ta_list = [
+            f"{user.fname} {user.lname} ({', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
+            for user in ta_list
+        ]
 
         for section in section_list:
             if str(request.POST["sec_num"]) == str(section.section_number):
@@ -324,21 +387,28 @@ class addSection(View):
                 context['course_data'] = Course.objects.filter(Course_name=course)
                 context['name'] = course_name
                 context['LecLab'] = LecLab
-                context['instructor_list'] = User.objects.filter(role="Instructor")
-                context['ta_list'] = User.objects.filter(role="TA")
+                context['instructor_list'] = formatted_instructor_list
+                context['ta_list'] = formatted_ta_list
                 return render(request, "addSection.html", context)
             if start_date > end_date or (start_date == end_date and start_time > end_time):
                 context['message'] = "Cannot have start date/time after end"
                 context['course_data'] = Course.objects.filter(Course_name=course)
                 context['name'] = course_name
                 context['LecLab'] = LecLab
-                context['instructor_list'] = User.objects.filter(role="Instructor")
-                context['ta_list'] = User.objects.filter(role="TA")
+                context['instructor_list'] = formatted_instructor_list
+                context['ta_list'] = formatted_ta_list
                 return render(request, "addSection.html", context)
 
-
-        new_section = Section.objects.create(Course=course_obj, section_number=sec_num, LecLab=LecLab_obj, start=start, end=end,
-                                             credits=credits, instructor=instructor, ta=ta)
+        new_section = Section.objects.create(
+            Course=course_obj,
+            section_number=sec_num,
+            LecLab=LecLab_obj,
+            start=start,
+            end=end,
+            credits=credits,
+            instructor=instructor,
+            ta=ta
+        )
         new_section.save()
         context['message'] = "You have added " + str(sec_num) + " to " + course_name
         context['user_list'] = User.objects.all()
@@ -346,12 +416,14 @@ class addSection(View):
         context['section_list'] = Section.objects.all()
         return render(request, "supervisor.html", context)
 
+
 class updateSection(View):
     def get(self, request, course_name, section_number):
-
         course = Course.objects.get(Course_name=course_name)
         section_list = Section.objects.filter(Course=course.id)
-        ta_list = User.objects.filter(role="TA")
+        ta_list = User.objects.filter(
+            role="TA",
+        ).distinct()
         instructor_list = User.objects.filter(role="Instructor")
 
         section = None
@@ -364,7 +436,51 @@ class updateSection(View):
                 end.replace(tzinfo=None)
                 start_date = datetime.strptime(str(start), "%Y-%m-%d %H:%M:%S%z")
                 end_date = datetime.strptime(str(end), "%Y-%m-%d %H:%M:%S%z")
-        return render(request, "updatesection.html", {"section": section, "name": course_name,
-                    "ta_list": ta_list, "instructor_list":instructor_list, "LecLab":LecLab, "start_date":start_date, "end_date":end_date})
+        return render(request, "updatesection.html", {
+            "section": section,
+            "name": course_name,
+            "ta_list": ta_list,
+            "instructor_list": instructor_list,
+            "LecLab": LecLab,
+            "start_date": start_date,
+            "end_date": end_date
+        })
+
     def post(self, request, course_name, section_number):
-        pass
+        section = Section.objects.get(section_number=section_number)
+        section.LecLab = request.POST["LecLab"]
+        section.start = request.POST["start"]
+        section.end = request.POST["end"]
+        section.credits = request.POST["credits"]
+        section.instructor = User.objects.get(username=request.POST["instructor"]) if request.POST["instructor"] else None
+        section.ta = User.objects.get(username=request.POST["ta"]) if request.POST["ta"] else None
+        section.save()
+
+        return redirect('supervisor')
+
+
+class edit_ta_skills(View):
+    def get(self, request):
+        if request.session.get('role') != 'TA':
+            return redirect_to_role_home(request)
+        try:
+            ta = User.objects.get(id=request.session['user_id'])
+            return render(request, 'edit_ta_skills.html', {'ta': ta})
+        except User.DoesNotExist:
+            return redirect('login')
+
+    def post(self, request):
+        if request.session.get('role') != 'TA':
+            return redirect_to_role_home(request)
+        try:
+            ta = User.objects.get(id=request.session['user_id'])
+            ta.java_skill = 'java_skill' in request.POST
+            ta.python_skill = 'python_skill' in request.POST
+            ta.frontend_skill = 'frontend_skill' in request.POST
+            ta.backend_skill = 'backend_skill' in request.POST
+            ta.scala_skill = 'scala_skill' in request.POST
+            ta.discrete_math_skill = 'discrete_math_skill' in request.POST
+            ta.save()
+            return redirect('ta')
+        except User.DoesNotExist:
+            return redirect('login')
