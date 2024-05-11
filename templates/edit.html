@@ -1,65 +1,45 @@
 {% extends 'base.html' %}
-
 {% block content %}
-        {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-    <br>
-    <meta charset="UTF-8">
-    <br>
-       <form method="post" action={% url 'edit' username %}>
-           {% csrf_token %}
-       
-    {% if isUser %}
-            <h3> Edit "{{ username }}"</h3>
-        <br>
-       <p><label>Username:</label><input type="text" id="text" name = "username" class="form-control form-control" 
-                                         value="{{ username }}" required></p><br>
-        
-       <p><label>Password:</label><input type="text" id="text" name = "password" class="form-control form-control" 
-                                         value="{{ username.password }}" required></p><br>
-        
-       <p><label>First Name:</label><input type="text" id="text" name = "fname" class="form-control form-control" 
-                                           value="{{ username.fname }}" required></p><br>
-        
-       <p><label>Last Name:</label></lable><input type="text" id="text" name = "lname" class="form-control form-control" 
-                                                  value="{{ username.lname }}" required></p><br>
-        
-        <p><label>Role: </label><br>
-            <select name="role">
-    {% for role in role_choices %}
-        {% if role.0 != username.role %}
-        <option value="{{ role.0 }}">{{ role.0 }}</option>
-        {% else %}
-        <option selected>{{ role.0 }}</option>        
-        {% endif %}
-    {% endfor %}
-    </select></p><br><br>
-
-    {% elif isCourse %}
-        <h3> Edit "{{ username.Course_name }}"</h3>
-        <br>
-        
-        <p><label>Course Name:</label><input required type="text" id="text" name = "CourseName" class="form-control form-control"
-                                             value="{{ username.Course_name }}"></p><br>
-        
-     <p><label>Meet Type:</label><br>
-         <select name="MeetType">  
-         <option selected>{{ username.MeetType }}</option>
-    {% for item in MeetType %}
-        {% if item.0 != username.MeetType %}
-            <option value="{{ item.0 }}">{{ item.0 }}</option> 
-        {% endif %}
-    {% endfor %}
-    </select></p><br>
-
-       <p><label>Description:</label><br>
-        <textarea name="course_desc" rows="5" cols="50">
-{{ username.Course_description }}
-        </textarea><br>
-
-       {% endif %}
-       <input type="submit" value="Update" class="btn btn-primary"><br>
-   </form>
-</div>
+<h2>Edit User</h2>
+<form method="POST">
+    {% csrf_token %}
+    <label>First Name: <input type="text" name="fname" value="{{ username.fname }}"></label><br>
+    <label>Last Name: <input type="text" name="lname" value="{{ username.lname }}"></label><br>
+    <label>Username: <input type="email" name="username" value="{{ username.username }}"></label><br>
+    <label>Role: 
+        <select name="role">
+            {% for role in role_choices %}
+                <option value="{{ role.0 }}" {% if role.0 == username.role %}selected{% endif %}>{{ role.1 }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    {% if show_skills %}
+    <h3>Edit Skills</h3>
+    <label>
+        <input type="checkbox" name="java_skill" {% if username.java_skill %}checked{% endif %}>
+        Java
+    </label><br>
+    <label>
+        <input type="checkbox" name="python_skill" {% if username.python_skill %}checked{% endif %}>
+        Python
+    </label><br>
+    <label>
+        <input type="checkbox" name="frontend_skill" {% if username.frontend_skill %}checked{% endif %}>
+        Frontend
+    </label><br>
+    <label>
+        <input type="checkbox" name="backend_skill" {% if username.backend_skill %}checked{% endif %}>
+        Backend
+    </label><br>
+    <label>
+        <input type="checkbox" name="scala_skill" {% if username.scala_skill %}checked{% endif %}>
+        Scala
+    </label><br>
+    <label>
+        <input type="checkbox" name="discrete_math_skill" {% if username.discrete_math_skill %}checked{% endif %}>
+        Discrete Math
+    </label><br>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
 {% endblock %}

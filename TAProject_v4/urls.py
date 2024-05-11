@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from ta_app.views import (login, supervisor, instructor, ta,
                           adduser, LogoutView, edit, Delete, user_page, ViewCourse, viewAssignments, addCourse,
-                          addSection, updateSection)
+                          addSection, updateSection, edit_ta_skills)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,5 +36,6 @@ urlpatterns = [
     path('addcourse/', addCourse.as_view(), name='addcourse'),
     path('addsection/<str:course_name>', addSection.as_view(), name='addsection'),
     path('addsection/<str:course_name>/<int:section_number>', updateSection.as_view(), name='updatesection'),
+    path('edit_ta_skills/', edit_ta_skills.as_view(), name='edit_ta_skills'),
 
 ]
