@@ -5,18 +5,18 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Logout</a>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'supervisor' %}">Home</a>
+          <a class="nav-link active" aria-current="page" 
+             href="{% if request.user.role == 'TA' %}{% url 'ta_home' %}
+                   {% elif request.user.role == 'Supervisor' %}{% url 'supervisor_home' %}
+                   {% else %}{% url 'instructor' %}{% endif %}">
+            Home
+          </a>
         </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'adduser' %}">Add User</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'userpage' %}">Users</a>
-          </li>
+       
       </ul>
     </div>
   </div>

@@ -32,8 +32,18 @@ class User(models.Model):
     fname = models.CharField(max_length=100)
     lname = models.CharField(max_length=100)
     role = models.CharField(max_length=20, choices=Roles.choices)
-
+    java_skill = models.BooleanField(default=False)
+    python_skill = models.BooleanField(default=False)
+    frontend_skill = models.BooleanField(default=False)
+    backend_skill = models.BooleanField(default=False)
+    scala_skill = models.BooleanField(default=False)
+    discrete_math_skill = models.BooleanField(default=False)
     def __str__(self):
+        return self.username  # Ensure this returns the username
+
+
+
+def __str__(self):
         return self.username
 
 
@@ -43,6 +53,7 @@ class Course(models.Model):
     Course_name = models.CharField(max_length=100)
     Course_description = models.TextField(max_length=500, null=True, blank=True)
     MeetType = models.CharField(max_length=20, choices=MeetType.choices, default=MeetType.InPerson)
+
 
     def __str__(self):
         return self.Course_name

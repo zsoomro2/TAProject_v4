@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Update Section {{ section.section_number }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label for="section_number">Section Number:</label>
+    <input type="text" id="section_number" name="section_number" value="{{ section.section_number }}" readonly><br><br>
+
+    <label for="LecLab">Lecture/Lab:</label>
+    <select id="LecLab" name="LecLab">
+      {% for key, value in LecLab.choices %}
+        <option value="{{ key }}" {% if section.LecLab == key %}selected{% endif %}>{{ value }}</option>
+      {% endfor %}
+    </select><br><br>
+
+    <label for="start">Start Date and Time:</label>
+    <input type="datetime-local" id="start" name="start" value="{{ start_date }}"><br><br>
+
+    <label for="end">End Date and Time:</label>
+    <input type="datetime-local" id="end" name="end" value="{{ end_date }}"><br><br>
+
+    <label for="credits">Credits:</label>
+    <input type="number" id="credits" name="credits" value="{{ section.credits }}"><br><br>
+
+    <label for="instructor">Instructor:</label>
+    <select id="instructor" name="instructor">
+      <option value="">None</option>
+      {% for instructor in instructor_list %}
+        <option value="{{ instructor.username }}" {% if section.instructor == instructor %}selected{% endif %}>
+          {{ instructor.fname }} {{ instructor.lname }}
+        </option>
+      {% endfor %}
+    </select><br><br>
+
+    <label for="ta">TA:</label>
+    <select id="ta" name="ta">
+      <option value="">None</option>
+      {% for ta in ta_list %}
+        <option value="{{ ta.username }}" {% if section.ta == ta %}selected{% endif %}>
+          {{ ta.fname }} {{ ta.lname }} - Skills:
+          {% if ta.java_skill %}Java {% endif %}
+          {% if ta.python_skill %}Python {% endif %}
+          {% if ta.frontend_skill %}Frontend {% endif %}
+          {% if ta.backend_skill %}Backend {% endif %}
+          {% if ta.scala_skill %}Scala {% endif %}
+          {% if ta.discrete_math_skill %}Discrete Math {% endif %}
+        </option>
+      {% endfor %}
+    </select><br><br>
+
+    <input type="submit" value="Update Section">
+  </form>
+{% endblock %}
