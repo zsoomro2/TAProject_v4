@@ -59,3 +59,36 @@ class EditClass:
         except Exception as e:
             print(f"Update failed for user {username}: {e}")
             return False
+
+
+    def updateCourse(self, request, thing):
+
+        updated_course = [request.POST['CourseName'], request.POST['MeetType'], request.POST['course_desc']]
+
+        course_list = Course.objects.all()
+
+        for course in course_list:
+
+            if course.Course_name == thing:
+
+                continue
+
+            elif request.POST['CourseName'] == course.Course_name:
+
+                return False
+
+            else:
+
+                update_course = Course.objects.get(Course_name=thing)
+
+                update_course.Course_name = updated_course[0]
+
+                update_course.MeetType = updated_course[1]
+
+                update_course.Course_description = updated_course[2]
+
+                update_course.save()
+
+        return True
+
+

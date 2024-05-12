@@ -1,0 +1,36 @@
+/* ta_styles.css */
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+}
+
+.info-section, .sections-section {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 45%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-table, .sections-list {
+    width: 100%;
+}
+
+.info-table th, .info-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.button-group {
+    margin-top: 10px;
+}
+
+.btn {
+    margin-right: 10px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}

@@ -146,17 +146,27 @@ class LogoutView(View):
 class edit(View):
     def get(self, request, username):
         thing = EditClass(request, username)
+        context = {'role_choices': Roles.choices}
         if thing.isUser():
-
+            if request.session.get('role') != 'Supervisor' and request.session.get('role') != 'TA':
+                return redirect_to_role_home(request)
             user = User.objects.get(username=username)
-            return render(request, 'edit.html', {'username': user, 'role_choices': Roles.choices,
-                                                 'isUser': thing.isUser()})
+            context.update({
+                'username': user,
+                'isUser': True,
+                'show_skills': request.session.get('role') == 'TA'
+            })
+            return render(request, 'edit.html', context)
 
         elif thing.isCourse():
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
             course = Course.objects.get(Course_name=username)
-            context = {'username': course, 'isCourse': thing.isCourse(), 'MeetType': MeetType.choices}
+            context.update({
+                'username': course,
+                'isCourse': True,
+                'MeetType': MeetType.choices
+            })
             return render(request, 'edit.html', context)
 
     def post(self, request, username):
@@ -169,32 +179,44 @@ class edit(View):
         context = {}
 
         if isUser:
-
-            print(f"Updating user: {username} with data: {request.POST}")
+            if request.session.get('role') != 'Supervisor' and request.session.get('role') != 'TA':
+                return redirect_to_role_home(request)
             update = thing.updateUser(request, username)
-
-            if update:
-                context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
-                           'message': f"You have edited {username}"}
-            else:
-                user = User.objects.get(username=username)
-                context = {'username': user, 'role_choices': Roles.choices, 'message': "Error when updating user"}
 
         elif isCourse:
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
-            print(f"Updating course: {username} with data: {request.POST}")
             update = thing.updateCourse(request, username)
 
-            if update:
-                context = {'user_list': user_list, 'course_list': course_list, 'section_list': section_list,
-                           'message': f"You have edited {username}"}
-            else:
+        if update:
+            context.update({
+                'user_list': user_list,
+                'course_list': course_list,
+                'section_list': section_list,
+                'message': f"You have edited {username}"
+            })
+            return render(request, 'supervisor.html', context)
+
+        else:
+            if isUser:
+                user = User.objects.get(username=username)
+                context.update({
+                    'username': user,
+                    'role_choices': Roles.choices,
+                    'message': "Error when updating user"
+                })
+
+            elif isCourse:
                 course = Course.objects.get(Course_name=username)
                 ta_list = User.objects.filter(role='TA')
                 instructor_list = User.objects.filter(role='Instructor')
-                context = {'username': course, 'ta_list': ta_list, 'instructor_list': instructor_list,
-                           'isCourse': thing.isCourse(), 'message': "There was an error updating the course"}
+                context.update({
+                    'username': course,
+                    'ta_list': ta_list,
+                    'instructor_list': instructor_list,
+                    'isCourse': True,
+                    'message': "There was an error updating the course"
+                })
 
         return render(request, 'edit.html', context)
 
