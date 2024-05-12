@@ -1,55 +1,74 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="header">
+<div class="header text-center my-4">
     <h2>TA Home Page</h2>
 </div>
 <div class="container">
-    <div class="info-section">
-        <h2>Your Information:</h2>
-        <table class="info-table">
-            <tr>
-                <th>First Name:</th>
-                <td>{{ ta.fname }}</td>
-            </tr>
-            <tr>
-                <th>Last Name:</th>
-                <td>{{ ta.lname }}</td>
-            </tr>
-            <tr>
-                <th>Username:</th>
-                <td>{{ ta.username }}</td>
-            </tr>
-            <tr>
-                <th>Skills:</th>
-                <td>
-                    <ul>
-                        {% if not ta.java_skill and not ta.python_skill and not ta.frontend_skill and not ta.backend_skill and not ta.scala_skill and not ta.discrete_math_skill %}
-                            <li>No skills added</li>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Your Information</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>First Name:</th>
+                            <td>{{ ta.fname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Name:</th>
+                            <td>{{ ta.lname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Username:</th>
+                            <td>{{ ta.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Skills:</th>
+                            <td>
+                                <ul>
+                                    {% if not ta.java_skill and not ta.python_skill and not ta.frontend_skill and not ta.backend_skill and not ta.scala_skill and not ta.discrete_math_skill %}
+                                        <li>No skills added</li>
+                                    {% else %}
+                                        {% if ta.java_skill %}<li>Java</li>{% endif %}
+                                        {% if ta.python_skill %}<li>Python</li>{% endif %}
+                                        {% if ta.frontend_skill %}<li>Frontend</li>{% endif %}
+                                        {% if ta.backend_skill %}<li>Backend</li>{% endif %}
+                                        {% if ta.scala_skill %}<li>Scala</li>{% endif %}
+                                        {% if ta.discrete_math_skill %}<li>Discrete Math</li>{% endif %}
+                                    {% endif %}
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit' ta.username %}" class="btn btn-primary">Edit User</a>
+                        <a href="{% url 'edit_ta_skills' %}" class="btn btn-secondary">Edit Skills</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Assigned Sections</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% if sections %}
+                            {% for section in sections %}
+                                <li class="list-group-item">{{ section.Course.Course_name }} - Section {{ section.section_number }}</li>
+                            {% endfor %}
                         {% else %}
-                            {% if ta.java_skill %}<li>Java</li>{% endif %}
-                            {% if ta.python_skill %}<li>Python</li>{% endif %}
-                            {% if ta.frontend_skill %}<li>Frontend</li>{% endif %}
-                            {% if ta.backend_skill %}<li>Backend</li>{% endif %}
-                            {% if ta.scala_skill %}<li>Scala</li>{% endif %}
-                            {% if ta.discrete_math_skill %}<li>Discrete Math</li>{% endif %}
+                            <li class="list-group-item">No assigned sections</li>
                         {% endif %}
                     </ul>
-                </td>
-            </tr>
-        </table>
-        <a href="{% url 'edit' ta.username %}" class="btn btn-primary">Edit User</a>
-    </div>
-    <div class="sections-section">
-        <h2>Assigned Sections</h2>
-        <ul>
-            {% if sections %}
-                {% for section in sections %}
-                    <li>{{ section.Course.Course_name }} - Section {{ section.section_number }}</li>
-                {% endfor %}
-            {% else %}
-                <li>No assigned sections</li>
-            {% endif %}
-        </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
