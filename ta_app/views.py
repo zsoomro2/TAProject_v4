@@ -71,10 +71,18 @@ class adduser(View):
         elif not isvalid:
             context['message'] = "There was an error validating the form"
 
-        context['user_list'] = User.objects.all()
-        context['course_list'] = Course.objects.all()
-        context['section_list'] = Section.objects.all()
-        return render(request, "supervisor.html", context)
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        if current_user and current_user.role == "Supervisor":
+            context['current_user'] = current_user
+            context['user_list'] = User.objects.all()
+            context['course_list'] = Course.objects.all()
+            context['section_list'] = Section.objects.all()
+            return render(request, "supervisor.html", context)
 
 
 class supervisor(View):
@@ -143,10 +151,10 @@ class edit(View):
         context = {'role_choices': Roles.choices}
 
         if thing.isUser():
-            if request.session.get('role') not in ['Supervisor', 'TA']:
+            user = User.objects.get(username=username)
+            if request.session.get('role') != "Supervisor" and request.session.get('user_id') != user.id:
                 return redirect_to_role_home(request)
 
-            user = User.objects.get(username=username)
             context.update({
                 'username': user,
                 'isUser': thing.isUser(),
@@ -304,12 +312,19 @@ class addCourse(View):
                 return render(request, "addCourse.html", context)
         new_course = Course(Course_name=name, MeetType=meet, Course_description=desc)
         new_course.save()
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
 
-        context["message"] = "You have successfully added " + name
-        context["user_list"] = User.objects.all()
-        context["course_list"] = Course.objects.all()
-        context["section_list"] = Section.objects.all()
-        return render(request, "supervisor.html", context)
+        if current_user and current_user.role == "Supervisor":
+            context['current_user'] = current_user
+            context["message"] = "You have successfully added " + name
+            context["user_list"] = User.objects.all()
+            context["course_list"] = Course.objects.all()
+            context["section_list"] = Section.objects.all()
+            return render(request, "supervisor.html", context)
 
 
 class addSection(View):
@@ -468,7 +483,6 @@ class updateSection(View):
 
         instructor_str = request.POST.get("instructor", "")
         ta_str = request.POST.get("ta", "")
-
         instructor_username = instructor_str.split(' ')[0] if instructor_str else None
         ta_username = ta_str.split(' ')[0] if ta_str else None
 

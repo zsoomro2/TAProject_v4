@@ -89,6 +89,7 @@
         </table>
         <br>
         <div class="center-buttons">
+            <a href="{% url 'edit' current_user.username %}"  class="btn btn-primary">Edit Profile</a>
             <a href="{% url 'userpage' %}" class="btn btn-primary">View All Users</a>
             <a href="{% url 'adduser' %}" class="btn btn-primary">Add User</a>
         </div>
