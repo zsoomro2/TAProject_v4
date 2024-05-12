@@ -1,36 +1,44 @@
 /* ta_styles.css */
 
-.container {
-    display: flex;
-    justify-content: space-around;
-    padding: 20px;
-}
-
-.info-section, .sections-section {
-    border: 1px solid #ccc;
-    padding: 20px;
-    width: 45%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.info-table, .sections-list {
-    width: 100%;
-}
-
-.info-table th, .info-table td {
-    padding: 10px;
-    text-align: left;
-}
-
-.button-group {
-    margin-top: 10px;
-}
-
-.btn {
-    margin-right: 10px;
+body {
+    font-family: Arial, sans-serif;
 }
 
 .header {
     text-align: center;
     margin-bottom: 20px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.info-section, .sections-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 48%;
+}
+
+.table {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.table th, .table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.table thead th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 10px;
 }

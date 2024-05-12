@@ -15,46 +15,20 @@ class EditClass:
     def updateUser(self, request, username):
         try:
             user = User.objects.get(username=username)
-            print(f"Updating user {username}...")
+            user.fname = request.POST.get('fname', user.fname)
+            user.lname = request.POST.get('lname', user.lname)
+            user.role = request.POST.get('role', user.role)
 
-            # Update user details
-            user.fname = request.POST.get('fname')
-            print(f"Updated fname: {user.fname}")
+            # Preserve existing skills if not explicitly changed
+            user.java_skill = 'java_skill' in request.POST or user.java_skill
+            user.python_skill = 'python_skill' in request.POST or user.python_skill
+            user.frontend_skill = 'frontend_skill' in request.POST or user.frontend_skill
+            user.backend_skill = 'backend_skill' in request.POST or user.backend_skill
+            user.scala_skill = 'scala_skill' in request.POST or user.scala_skill
+            user.discrete_math_skill = 'discrete_math_skill' in request.POST or user.discrete_math_skill
 
-            user.lname = request.POST.get('lname')
-            print(f"Updated lname: {user.lname}")
-
-            user.role = request.POST.get('role')
-            print(f"Updated role: {user.role}")
-
-            # Update password if provided
-            password = request.POST.get('password')
-            if password:
-                user.password = password
-                print(f"Updated password for {username}")
-
-            # Update skills
-            user.java_skill = 'java_skill' in request.POST
-            print(f"Updated java_skill: {user.java_skill}")
-
-            user.python_skill = 'python_skill' in request.POST
-            print(f"Updated python_skill: {user.python_skill}")
-
-            user.frontend_skill = 'frontend_skill' in request.POST
-            print(f"Updated frontend_skill: {user.frontend_skill}")
-
-            user.backend_skill = 'backend_skill' in request.POST
-            print(f"Updated backend_skill: {user.backend_skill}")
-
-            user.scala_skill = 'scala_skill' in request.POST
-            print(f"Updated scala_skill: {user.scala_skill}")
-
-            user.discrete_math_skill = 'discrete_math_skill' in request.POST
-            print(f"Updated discrete_math_skill: {user.discrete_math_skill}")
-
-            # Save user
             user.save()
-            print(f"User {username} updated successfully.")
+            print(f"Updated user: {user.username}")
             return True
         except Exception as e:
             print(f"Update failed for user {username}: {e}")

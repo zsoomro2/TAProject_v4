@@ -52,22 +52,44 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h2>Assigned Sections</h2>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% if sections %}
-                            {% for section in sections %}
-                                <li class="list-group-item">{{ section.Course.Course_name }} - Section {{ section.section_number }}</li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="list-group-item">No assigned sections</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
+           <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Section Number</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Instructor</th>
+                    <th>Meet Type</th>
+                    <th>Lec/Lab</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sections %}
+                    {% for section in sections %}
+                        <tr>
+                            <td>{{ section.Course.Course_name }}</td>
+                            <td>{{ section.section_number }}</td>
+                            <td>{{ section.start }}</td>
+                            <td>{{ section.end }}</td>
+                            <td>
+                                {% if section.instructor %}
+                                    {{ section.instructor.fname }} {{ section.instructor.lname }}
+                                {% else %}
+                                    No instructor
+                                {% endif %}
+                            </td>
+                            <td>{{ section.MeetType }}</td>
+                            <td>{{ section.LecLab }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7">No assigned sections</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
         </div>
     </div>
 </div>

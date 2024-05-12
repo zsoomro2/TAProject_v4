@@ -147,24 +147,27 @@ class edit(View):
     def get(self, request, username):
         thing = EditClass(request, username)
         context = {'role_choices': Roles.choices}
+
         if thing.isUser():
-            if request.session.get('role') != 'Supervisor' and request.session.get('role') != 'TA':
+            if request.session.get('role') not in ['Supervisor', 'TA']:
                 return redirect_to_role_home(request)
+
             user = User.objects.get(username=username)
             context.update({
                 'username': user,
-                'isUser': True,
-                'show_skills': request.session.get('role') == 'TA'
+                'isUser': thing.isUser(),
+                'show_skills': request.session.get('role') != 'TA'  # Only show skills for non-TA
             })
             return render(request, 'edit.html', context)
 
         elif thing.isCourse():
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
+
             course = Course.objects.get(Course_name=username)
             context.update({
                 'username': course,
-                'isCourse': True,
+                'isCourse': thing.isCourse(),
                 'MeetType': MeetType.choices
             })
             return render(request, 'edit.html', context)
@@ -173,31 +176,28 @@ class edit(View):
         thing = EditClass(request, username)
         isUser = thing.isUser()
         isCourse = thing.isCourse()
-        user_list = User.objects.all()
-        course_list = Course.objects.all()
-        section_list = Section.objects.all()
-        context = {}
 
         if isUser:
-            if request.session.get('role') != 'Supervisor' and request.session.get('role') != 'TA':
+            if request.session.get('role') not in ['Supervisor', 'TA']:
                 return redirect_to_role_home(request)
+
             update = thing.updateUser(request, username)
 
         elif isCourse:
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
+
             update = thing.updateCourse(request, username)
 
         if update:
-            context.update({
-                'user_list': user_list,
-                'course_list': course_list,
-                'section_list': section_list,
-                'message': f"You have edited {username}"
-            })
-            return render(request, 'supervisor.html', context)
+            # Redirect based on role
+            if request.session.get('role') == 'TA':
+                return redirect('ta')  # Redirect to TA homepage
+            else:
+                return redirect('supervisor')  # Redirect to Supervisor homepage
 
         else:
+            context = {}
             if isUser:
                 user = User.objects.get(username=username)
                 context.update({
@@ -205,7 +205,6 @@ class edit(View):
                     'role_choices': Roles.choices,
                     'message': "Error when updating user"
                 })
-
             elif isCourse:
                 course = Course.objects.get(Course_name=username)
                 ta_list = User.objects.filter(role='TA')
@@ -214,11 +213,12 @@ class edit(View):
                     'username': course,
                     'ta_list': ta_list,
                     'instructor_list': instructor_list,
-                    'isCourse': True,
+                    'isCourse': thing.isCourse(),
                     'message': "There was an error updating the course"
                 })
 
-        return render(request, 'edit.html', context)
+            return render(request, 'edit.html', context)
+
 
 class Delete(View):
     def get(self, request, username):
@@ -335,12 +335,12 @@ class addSection(View):
 
         # Format instructor and TA lists
         formatted_instructor_list = [
-            f"{user.fname} {user.lname}"
+            f"{user.username} ({user.fname} {user.lname})"
             for user in instructor_list
         ]
 
         formatted_ta_list = [
-            f"{user.fname} {user.lname} (Skills: {', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'None'})"
+            f"{user.username} ({user.fname} {user.lname} - Skills: {', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
             for user in ta_list
         ]
 
@@ -372,18 +372,22 @@ class addSection(View):
         ta_str = request.POST.get("ta", "")
 
         # Extract username from formatted strings
-        instructor_username = instructor_str.split(' ')[0] if instructor_str else ""
-        ta_username = ta_str.split(' ')[0] if ta_str else ""
+        instructor_username = instructor_str.split(' ')[0] if instructor_str else None
+        ta_username = ta_str.split(' ')[0] if ta_str else None
 
-        try:
-            instructor = User.objects.get(username=instructor_username) if instructor_username else None
-        except User.DoesNotExist:
-            instructor = None
+        instructor = None
+        if instructor_username:
+            try:
+                instructor = User.objects.get(username=instructor_username)
+            except User.DoesNotExist:
+                instructor = None
 
-        try:
-            ta = User.objects.get(username=ta_username) if ta_username else None
-        except User.DoesNotExist:
-            ta = None
+        ta = None
+        if ta_username:
+            try:
+                ta = User.objects.get(username=ta_username)
+            except User.DoesNotExist:
+                ta = None
 
         course_obj = Course.objects.get(Course_name=course)
         section_list = Section.objects.filter(Course=course_obj.id)
@@ -394,12 +398,12 @@ class addSection(View):
 
         # Format instructor and TA lists
         formatted_instructor_list = [
-            f"{user.fname} {user.lname} ({', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
+            f"{user.username} ({user.fname} {user.lname})"
             for user in instructor_list
         ]
 
         formatted_ta_list = [
-            f"{user.fname} {user.lname} ({', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
+            f"{user.username} ({user.fname} {user.lname} - Skills: {', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
             for user in ta_list
         ]
 
@@ -437,7 +441,6 @@ class addSection(View):
         context['course_list'] = Course.objects.all()
         context['section_list'] = Section.objects.all()
         return render(request, "supervisor.html", context)
-
 
 class updateSection(View):
     def get(self, request, course_name, section_number):
