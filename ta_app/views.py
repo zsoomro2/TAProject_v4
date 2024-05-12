@@ -442,45 +442,55 @@ class addSection(View):
         context['section_list'] = Section.objects.all()
         return render(request, "supervisor.html", context)
 
+
 class updateSection(View):
     def get(self, request, course_name, section_number):
         course = Course.objects.get(Course_name=course_name)
         section_list = Section.objects.filter(Course=course.id)
-        ta_list = User.objects.filter(
-            role="TA",
-        ).distinct()
+        ta_list = User.objects.filter(role="TA").distinct()
         instructor_list = User.objects.filter(role="Instructor")
 
-        section = None
-        for item in section_list:
-            if str(item.section_number) == str(section_number):
-                section = Section.objects.get(section_number=section_number)
-                start = section.start
-                start.replace(tzinfo=None)
-                end = section.end
-                end.replace(tzinfo=None)
-                start_date = datetime.strptime(str(start), "%Y-%m-%d %H:%M:%S%z")
-                end_date = datetime.strptime(str(end), "%Y-%m-%d %H:%M:%S%z")
-        return render(request, "updatesection.html", {
+        section = Section.objects.get(section_number=section_number)
+        start = section.start
+        end = section.end
+
+        context = {
             "section": section,
             "name": course_name,
             "ta_list": ta_list,
             "instructor_list": instructor_list,
             "LecLab": LecLab,
-            "start_date": start_date,
-            "end_date": end_date
-        })
+            "start_date": start.strftime("%Y-%m-%dT%H:%M"),
+            "end_date": end.strftime("%Y-%m-%dT%H:%M")
+        }
+        return render(request, "updatesection.html", context)
 
     def post(self, request, course_name, section_number):
         section = Section.objects.get(section_number=section_number)
         section.LecLab = request.POST["LecLab"]
-        section.start = request.POST["start"]
-        section.end = request.POST["end"]
+        section.start = datetime.strptime(request.POST["start"], "%Y-%m-%dT%H:%M").replace(tzinfo=timezone.utc)
+        section.end = datetime.strptime(request.POST["end"], "%Y-%m-%dT%H:%M").replace(tzinfo=timezone.utc)
         section.credits = request.POST["credits"]
-        section.instructor = User.objects.get(username=request.POST["instructor"]) if request.POST["instructor"] else None
-        section.ta = User.objects.get(username=request.POST["ta"]) if request.POST["ta"] else None
-        section.save()
 
+        instructor_str = request.POST.get("instructor", "")
+        ta_str = request.POST.get("ta", "")
+
+        instructor_username = instructor_str.split(' ')[0] if instructor_str else None
+        ta_username = ta_str.split(' ')[0] if ta_str else None
+
+        if instructor_username:
+            try:
+                section.instructor = User.objects.get(username=instructor_username)
+            except User.DoesNotExist:
+                section.instructor = None
+
+        if ta_username:
+            try:
+                section.ta = User.objects.get(username=ta_username)
+            except User.DoesNotExist:
+                section.ta = None
+
+        section.save()
         return redirect('supervisor')
 
 
