@@ -37,7 +37,7 @@
       <option value="">None</option>
       {% for ta in ta_list %}
         <option value="{{ ta.username }}" {% if section.ta == ta %}selected{% endif %}>
-          {{ ta.fname }} {{ ta.lname }} - Skills: 
+          {{ ta.fname }} {{ ta.lname }} - Skills:
           {% if ta.java_skill %}Java {% endif %}
           {% if ta.python_skill %}Python {% endif %}
           {% if ta.frontend_skill %}Frontend {% endif %}

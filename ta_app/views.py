@@ -17,6 +17,7 @@ def redirect_to_role_home(request):
 
 class login(View):
     def get(self, request):
+        request.session.flush()
         return render(request, "login.html", {})
 
     def post(self, request):
@@ -108,13 +109,6 @@ class user_page(View):
         user_list = User.objects.all()
         return render(request, 'editUser.html', {'user_list': user_list})
 
-
-class instructor(View):
-    def get(self, request):
-        if request.session.get('role') != 'Instructor':
-            return redirect_to_role_home(request)
-        users = User.objects.all()
-        return render(request, "instructor.html", {'users': users})
 
 
 class ta(View):
@@ -519,3 +513,76 @@ class edit_ta_skills(View):
             return redirect('ta')
         except User.DoesNotExist:
             return redirect('login')
+
+
+class instructor(View):
+    def get(self, request):
+        if request.session.get('role') != 'Instructor':
+            return redirect_to_role_home(request)
+        try:
+            instructor_user = User.objects.get(id=request.session['user_id'])
+            sections = Section.objects.filter(instructor=instructor_user)
+            available_tas = User.objects.filter(role='TA')  # Assuming TA role is identified by 'TA'
+
+            return render(request, "instructor.html", {
+                'instructor': instructor_user,
+                'sections': sections,
+                'tas': available_tas
+            })
+        except User.DoesNotExist:
+            return redirect('login')
+
+    def post(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+        except Section.DoesNotExist:
+            section = None
+
+        if section:
+            ta_id = request.POST.get('ta_id')
+            try:
+                if ta_id:
+                    ta_user = User.objects.get(id=ta_id)
+                    section.ta = ta_user
+                    section.save()
+            except User.DoesNotExist:
+                pass  # Handle error if TA does not exist
+
+        return redirect('instructor')
+
+
+
+class AddTA(View):
+    def post(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+            ta_id = request.POST.get('ta_id')
+            if ta_id:
+                try:
+                    ta_user = User.objects.get(id=ta_id)
+                    section.ta = ta_user
+                    section.save()
+                    return redirect('instructor')
+                except User.DoesNotExist:
+                    return render(request, 'instructor.html', {
+                        'error': 'TA does not exist.',
+                        'sections': Section.objects.all(),
+                        'tas': User.objects.filter(role='TA')
+                    })
+        except Section.DoesNotExist:
+            return render(request, 'instructor.html', {
+                'error': 'Section does not exist.',
+                'sections': Section.objects.all(),
+                'tas': User.objects.filter(role='TA')
+            })
+
+
+class RemoveTA(View):
+    def get(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+            section.ta = None
+            section.save()
+        except Section.DoesNotExist:
+            return redirect('instructor')
+        return redirect('instructor')

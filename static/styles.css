@@ -1,34 +1,147 @@
- /* styles.css */
+/* style.css */
 
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-      padding: 20px;
-    line-height: 1.5; /* Increase line-height for more spacing between lines */
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
-/* Class styles */
-.user-info {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-}
-
-.course-list {
-    margin-top: 10px;
-}
-
-.course-item {
-    margin-bottom: 5px;
-    color: #333;
-}
-
-
-/* Center the header tag */
 header {
-    text-align: center;
-    font-size: 1.5em;
-    font-weight: bold;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  text-align: center;
 }
+
+h1, h4 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Content Sections */
+.content-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid rgb(140, 140, 140);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+caption {
+  caption-side: bottom;
+  padding: 10px;
+  font-weight: bold;
+}
+
+thead {
+  background-color: lightgoldenrodyellow;
+}
+
+th, td {
+  border: 1px solid rgb(160, 160, 160);
+  padding: 10px;
+  text-align: center;
+}
+
+td:last-of-type {
+  text-align: center;
+}
+
+tbody > tr:nth-of-type(even) {
+  background-color: lightgrey;
+}
+
+tfoot th {
+  text-align: right;
+}
+
+tfoot td {
+  font-weight: bold;
+}
+
+/* Button Styles */
+.center-buttons {
+  text-align: center;
+}
+
+.center-buttons .btn {
+  margin: 5px;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: black;
+}
+
+/* Form Styles */
+input[type=text], input[type=password], input[type=datetime-local], input[type=number], select, textarea {
+  width: calc(100% - 24px);
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+textarea {
+  resize: horizontal;
+  max-width: 100%;
+}
+
+.form-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+form .form-group {
+  margin-bottom: 15px;
+}
+
+form .form-actions {
+  text-align: center;
+}
+
+.form-actions .btn {
+  margin: 5px;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
