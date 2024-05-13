@@ -221,6 +221,39 @@ class edit(View):
 
             return render(request, 'edit.html', context)
 
+class DeleteSection(View):
+    def get(self, request, course, section):
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
+        return render(request, 'deletesection.html', {'course_name': course, 'section_number': section})
+
+    def post(self, request, course, section):
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
+
+        course = Course.objects.get(Course_name=course)
+        section_list = Section.objects.filter(Course=course.id)
+        for item in section_list:
+            if item.section_number == section:
+                item.delete()
+
+        user_list = User.objects.all()
+        course_list = Course.objects.all()
+        section_list = Section.objects.all()
+        user_id = request.session.get('user_id')
+
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        if current_user and current_user.role == "Supervisor":
+            return render(request, 'supervisor.html', {
+                'user_list': user_list,
+                'course_list': course_list,
+                'section_list': section_list,
+                'current_user': current_user,
+            })
 
 class Delete(View):
     def get(self, request, username):
@@ -235,6 +268,23 @@ class Delete(View):
         if thing.isUser():
             user = User.objects.get(username=username)
             user.delete()
+            user_list = User.objects.all()
+            course_list = Course.objects.all()
+            section_list = Section.objects.all()
+            user_id = request.session.get('user_id')
+
+            try:
+                current_user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                current_user = None
+
+            if current_user and current_user.role == "Supervisor":
+                return render(request, 'supervisor.html', {
+                    'user_list': user_list,
+                    'course_list': course_list,
+                    'section_list': section_list,
+                    'current_user': current_user,
+                })
 
         elif thing.isCourse():
             course = Course.objects.get(Course_name=username)
@@ -444,14 +494,14 @@ class addSection(View):
                 context['instructor_list'] = formatted_instructor_list
                 context['ta_list'] = formatted_ta_list
                 return render(request, "addSection.html", context)
-            if start_date > end_date or (start_date == end_date and start_time > end_time):
-                context['message'] = "Cannot have start date/time after end"
-                context['course_data'] = Course.objects.filter(Course_name=course)
-                context['name'] = course_name
-                context['LecLab'] = LecLab
-                context['instructor_list'] = formatted_instructor_list
-                context['ta_list'] = formatted_ta_list
-                return render(request, "addSection.html", context)
+        if start_date > end_date or (start_date == end_date and start_time > end_time):
+            context['message'] = "Cannot have start date/time after end"
+            context['course_data'] = Course.objects.filter(Course_name=course)
+            context['name'] = course_name
+            context['LecLab'] = LecLab
+            context['instructor_list'] = formatted_instructor_list
+            context['ta_list'] = formatted_ta_list
+            return render(request, "addSection.html", context)
 
         new_section = Section.objects.create(
             Course=course_obj,
@@ -464,6 +514,13 @@ class addSection(View):
             ta=ta
         )
         new_section.save()
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        context['current_user'] = current_user
         context['message'] = "You have added " + str(sec_num) + " to " + course_name
         context['user_list'] = User.objects.all()
         context['course_list'] = Course.objects.all()
@@ -478,7 +535,7 @@ class updateSection(View):
         ta_list = User.objects.filter(role="TA").distinct()
         instructor_list = User.objects.filter(role="Instructor")
 
-        section = Section.objects.get(section_number=section_number)
+        section = Section.objects.get(Course=course.id, section_number=section_number)
         start = section.start
         end = section.end
 
@@ -494,12 +551,13 @@ class updateSection(View):
         return render(request, "updatesection.html", context)
 
     def post(self, request, course_name, section_number):
-        section = Section.objects.get(section_number=section_number)
+        context = {}
+        course = Course.objects.get(Course_name=course_name).id
+        section = Section.objects.get(Course=course, section_number=section_number)
         section.LecLab = request.POST["LecLab"]
         section.start = datetime.strptime(request.POST["start"], "%Y-%m-%dT%H:%M").replace(tzinfo=timezone.utc)
         section.end = datetime.strptime(request.POST["end"], "%Y-%m-%dT%H:%M").replace(tzinfo=timezone.utc)
         section.credits = request.POST["credits"]
-
         instructor_str = request.POST.get("instructor", "")
         ta_str = request.POST.get("ta", "")
         instructor_username = instructor_str.split(' ')[0] if instructor_str else None
@@ -516,6 +574,33 @@ class updateSection(View):
                 section.ta = User.objects.get(username=ta_username)
             except User.DoesNotExist:
                 section.ta = None
+        start_date = section.start.date()
+        end_date = section.start.date()
+        start_time = section.start.time()
+        end_time = section.end.time()
+        instructor_list = User.objects.all()
+        ta_list = User.objects.all()
+        # Format instructor and TA lists
+        formatted_instructor_list = [
+            f"{user.username} ({user.fname} {user.lname})"
+            for user in instructor_list
+        ]
+
+        formatted_ta_list = [
+            f"{user.username} ({user.fname} {user.lname} - Skills: {', '.join([skill for skill in ['Java', 'Python', 'Frontend', 'Backend', 'Scala', 'Discrete Math'] if getattr(user, f'{skill.lower().replace(' ', '_')}_skill')]) or 'No Skills Added'})"
+            for user in ta_list
+        ]
+
+        if start_date > end_date or (start_date == end_date and start_time > end_time):
+            context['message'] = "Cannot have start date/time after end"
+            context['course_data'] = Course.objects.filter(Course_name=course)
+            context['name'] = course_name
+            context['LecLab'] = LecLab
+            context['instructor_list'] = formatted_instructor_list
+            context['ta_list'] = formatted_ta_list
+            context["start_date"] = section.start.strftime("%Y-%m-%dT%H:%M"),
+            context["end_date"] = section.end.strftime("%Y-%m-%dT%H:%M")
+            return render(request, "updatesection.html", context)
 
         section.save()
         return redirect('supervisor')

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+<html lang="en">
+{% block content %}
+        {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'forms.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}"><!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1><strong>Are you sure you want to delete {{ course_name }}'s {{ section_number }}?</strong></h1>
+<br>
+<form method="post" action={% url 'deletesection' course_name section_number %}>
+        {% csrf_token %}
+<input type="submit" value = "Yes" class="btn btn-danger" role="button">
+    </form><br>
+<a class="btn btn-primary" href= {% url 'supervisor' %} role="button">No</a>
+</body>
+{% endblock %}
+</html>

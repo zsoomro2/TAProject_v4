@@ -109,7 +109,6 @@ class EditTestCase(TestCase):
     client = Client()
     def setUp(self):
         self.client = Client()
-
     def test_editUser(self):
         test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
                                         lname='test_lname', role='Supervisor')
@@ -228,6 +227,30 @@ class EditTestCase(TestCase):
 
         with self.assertRaises(Course.DoesNotExist, msg="Course does not exist"):
             course = Course.objects.get(Course_name='Math 105')
+
+    def test_instructorRemovesTA(self):
+        test_course = Course.objects.create(Course_name="Math 100", Course_description="", MeetType="Online")
+        test_user = User.objects.create(username='test1@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='TA')
+        user = User.objects.get(username='test1@test.com')
+        test_user = User.objects.create(username='test2@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='Instructor')
+        start = datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S")
+        end = datetime.strptime("2023-01-01 12:00:00", "%Y-%m-%d %H:%M:%S")
+        course = Course.objects.get(Course_name="Math 100")
+        test_section = Section.objects.create(Course=course, section_number="401", LecLab="Lecture", start=start,
+                                              end=end, credits=4, instructor=None, ta=user)
+
+        resp = self.client.post('', {'username': 'test1@test.com', 'password': 'test'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertEqual(test_section.ta, user)
+        self.client.login(username='test2@test.com', password='test')
+        url = '/remove_ta/' + str(test_section.id) + '/'
+        resp = self.client.get(url, {'section_id': test_section.id})
+        section = Section.objects.get(section_number="401")
+        self.assertEqual(section.ta, None)
+
 class test_addCourse(TestCase):
     def setUp(self):
         self.client = Client()
@@ -311,8 +334,8 @@ class test_addSection(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         course = Course.objects.get(Course_name="Math 101")
-        start = datetime.strptime("2022-01-01T12:00", "%Y-%m-%dT%H:%M").replace(tzinfo=None)
-        end = datetime.strptime("2023-02-02T12:00", "%Y-%m-%dT%H:%M").replace(tzinfo=None)
+        start = datetime.strptime("2022-01-01T12:00", "%Y-%m-%dT%H:%M")
+        end = datetime.strptime("2023-02-02T12:00", "%Y-%m-%dT%H:%M")
 
         resp = self.client.post('/addsection/Math%20101', {'course_name':course, 'sec_num': '402',
                                     'LecLab':'Lecture', 'start':start, 'end':end, 'credits':'4',
@@ -342,6 +365,47 @@ class deleteTests(TestCase):
         resp = self.client.post('/delete.html/test1@test.com', follow=True)
         with self.assertRaises(User.DoesNotExist, msg="User does not exist"):
             user = User.objects.get(username='testtest.com')
+
+    def test_deleteSection(self):
+        start = datetime.strptime("2022-01-01T12:00", "%Y-%m-%dT%H:%M")
+        end = datetime.strptime("2023-01-01T12:00", "%Y-%m-%dT%H:%M")
+        test_user1 = User.objects.create(username='test1@test.com', password='test', fname='test_name',
+                                         lname='test_lname', role='Supervisor')
+
+        test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
+        course = Course.objects.get(Course_name="Math 101")
+
+        test_section = Section.objects.create(Course=course, section_number="401", LecLab="Lecture", start=start,
+                                              end=end, credits=4, instructor=None, ta=None)
+
+        resp = self.client.post('', {'username': 'test@test.com', 'password': 'test'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.client.login(username="test@test.com", password="test")
+
+        resp = self.client.post('/deletesection/Math%20101/401/', follow=True)
+        with self.assertRaises(Section.DoesNotExist, msg="Section does not exist"):
+            section = Section.objects.get(Course=course.id)
+
+    def test_badUserTriesToDeleteSection(self):
+        start = datetime.strptime("2022-01-01T12:00", "%Y-%m-%dT%H:%M")
+        end = datetime.strptime("2023-01-01T12:00", "%Y-%m-%dT%H:%M")
+        test_user1 = User.objects.create(username='test1@test.com', password='test', fname='test_name',
+                                         lname='test_lname', role='TA')
+
+        test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
+        course = Course.objects.get(Course_name="Math 101")
+
+        test_section = Section.objects.create(Course=course, section_number="401", LecLab="Lecture", start=start,
+                                              end=end, credits=4, instructor=None, ta=None)
+
+        resp = self.client.post('', {'username': 'test1@test.com', 'password': 'test'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.client.login(username="test1@test.com", password="test")
+        resp = self.client.post('/deletesection/Math%20101/401/', follow=True)
+        section = Section.objects.get(section_number="401")
+        self.assertEqual(str(section.section_number), "401")
+
+
     def test_deleteCourse(self):
         test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
 
@@ -375,6 +439,24 @@ class deleteTests(TestCase):
         user = User.objects.get(username='test10@test.com')
 
         self.assertEqual(user.username, 'test10@test.com')
+
+    def test_deleteCourseRemovesSections(self):
+        start = datetime.strptime("2022-01-01T12:00", "%Y-%m-%dT%H:%M")
+        end = datetime.strptime("2023-01-01T12:00", "%Y-%m-%dT%H:%M")
+        test_user1 = User.objects.create(username='test1@test.com', password='test', fname='test_name',
+                                         lname='test_lname', role='Supervisor')
+
+        test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
+        course = Course.objects.get(Course_name="Math 101")
+
+        test_section = Section.objects.create(Course=course, section_number="401", LecLab="Lecture", start=start,
+                                              end=end, credits=4, instructor=None, ta=None)
+        resp = self.client.post('/', {'username': 'test1@test.com', 'password': 'test'})
+        self.client.login(username="test1@test.com", password="test")
+
+        resp = self.client.post('/delete.html/Math%20101')
+        with self.assertRaises(Section.DoesNotExist, msg="Section does not exist"):
+            section = Section.objects.get(section_number='401')
 
 class LogoutTest(TestCase):
     pass

@@ -67,7 +67,7 @@
                 <td>{{ section.instructor }}</td>
                 <td>{{ section.ta }}</td>
                 <td><a class="btn btn-primary" href="{% url 'updatesection' course_name section.section_number %}" role="button">Update</a>
-                    <a class="btn btn-danger" href="#" role="button">Delete</a></td>
+                    <a class="btn btn-danger" href="{% url 'deletesection'  course_name section.section_number %}" role="button">Delete</a></td>
                 </tr>
                 {% endif %}
             {% endfor %}
