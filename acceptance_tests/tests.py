@@ -73,6 +73,49 @@ class AddUserTestCase(TestCase):
                                               'fname': 'test_name', 'lname': 'test_lname', 'role': 'Role'})
         self.assertEqual(resp.context['message'], "There was an error validating the form")
 
+class EditUserTestCase(TestCase):
+    client = Client(username='test@test.com', password='<PASSWORD>', fname='fname', lname = 'lname', role='Supervisor')
+
+    def test_editUser(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'test_name', 'lname': 'test_lname',
+                                           'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'TA'})
+        self.assertEqual(resp.status_code, 200)
+
+    def test_editUserNoFName(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': '', 'lname': 'test_lname',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'TA'})
+        self._assert_contains(response=resp, text="Please fill out this field.", status_code=200, msg_prefix='', html=False)
+
+    def test_editUserNoLName(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'test_name', 'lname': '',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>',
+                                                             'role': 'TA'})
+        self._assert_contains(response=resp, text="Please fill out this field.", status_code=200, msg_prefix='',
+                              html=False)
+
+    def test_editUserChangeRole(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'test_name', 'lname': 'test_lname',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'Ta'})
+        self.assertEqual(resp.status_code, 200)
+
+    def test_editUserChangeFName(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'new_name', 'lname': 'test_lname',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'Supervisor'})
+        self.assertEqual(resp.status_code, 200)
+
+    def test_editUserChangeLName(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'test_name', 'lname': 'new_lname',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'Supervisor'})
+        self.assertEqual(resp.status_code, 200)
+
+    def test_editUserSkills(self):
+        resp = self.client.post('/edit.html/test@test.com', {'fname': 'test_name', 'lname': 'test_lname',
+                                                             'username': 'test@test.com', 'password': '<PASSWORD>', 'role': 'Supervisor',
+                                                             'java_skill': True, 'python_skill': True, 'frontend_skill': False,
+                                                             'backend_skill': True, 'scala_skill': False, 'discrete_math_skill': False})
+        self.assertEqual(resp.status_code, 200)
+
+
 class LogoutTest(TestCase):
     client = None
 

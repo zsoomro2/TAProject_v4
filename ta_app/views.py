@@ -143,10 +143,10 @@ class edit(View):
         context = {'role_choices': Roles.choices}
 
         if thing.isUser():
+            user = User.objects.get(username=username)
             if request.session.get('role') not in ['Supervisor', 'TA']:
                 return redirect_to_role_home(request)
 
-            user = User.objects.get(username=username)
             context.update({
                 'username': user,
                 'isUser': thing.isUser(),
@@ -170,6 +170,7 @@ class edit(View):
         thing = EditClass(request, username)
         isUser = thing.isUser()
         isCourse = thing.isCourse()
+        update = False
 
         if isUser:
             if request.session.get('role') not in ['Supervisor', 'TA']:

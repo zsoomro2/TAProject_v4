@@ -4,8 +4,8 @@
         <h2>Edit User</h2>
         <form method="POST">
             {% csrf_token %}
-            <label>First Name: <input type="text" name="fname" value="{{ username.fname }}"></label><br>
-            <label>Last Name: <input type="text" name="lname" value="{{ username.lname }}"></label><br>
+            <label>First Name: <input type="text" name="fname" value="{{ username.fname }}" required></label><br>
+            <label>Last Name: <input type="text" name="lname" value="{{ username.lname }}" required></label><br>
             <label>Username: <input type="email" name="username" value="{{ username.username }}"></label><br>
             {% if request.session.role != 'TA' %}
                 <label>Role: 
