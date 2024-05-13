@@ -84,6 +84,9 @@ class AddUserTestCase(TestCase):
                                               'fname': 'test_name', 'lname': 'test_lname', 'role': 'TA'})
         self.assertEqual(resp.context['message'], "You have successfully added test3@test.com")
 
+        user = User.objects.get(username='test3@test.com')
+        self.assertEqual(user.username, 'test3@test.com')
+
     def test_addBadRole(self):
         resp = self.client.post('', {'username': 'test@test.com', 'password': 'test'}, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -172,9 +175,11 @@ class EditTestCase(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.client.login(username='test@test.com', password='test')
 
-        resp = self.client.get('/edit.html/test1@test.com', {'username': 'test1@test', 'password': 'test',
-                                'fname':'test_name', 'lname': 'test_lname', 'role': 'Supervisor'})
-        self.assertEqual(resp.status_code, 302)
+        resp = self.client.post('/edit.html/test1@test.com', {'username': 'test10@test', 'password': 'test',
+                                'fname':'test_name', 'lname': 'test_lname', 'role': 'Supervisor'}, follow=True)
+
+        with self.assertRaises(User.DoesNotExist, msg="User does not exist"):
+            user = User.objects.get(username='test10@test.com')
 
     def test_userEditOwnProfile(self):
         test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
@@ -191,25 +196,7 @@ class EditTestCase(TestCase):
                                                              'lname': 'test_lname'}, follow=True)
         updated_user = User.objects.get(username='test1@test.com')
         self.assertEqual(updated_user.username, 'test1@test.com')
-    def test_editCourse(self):
-        test_course = Course.objects.create(Course_name="Math 101", Course_description="abc", MeetType="Online")
-        test_user = User.objects.create(username='test1@test.com', password='test', fname='test_name',
-                                        lname='test_lname', role='Supervisor')
 
-        resp = self.client.post('', {'username':'test1@test.com', 'password':'test'}, follow=True)
-        self.assertEqual(resp.status_code, 200)
-
-        self.client.login(username='test1@test.com', password='test')
-        resp = self.client.get('/edit.html/Math%20101', {'CourseName':'Math 101', 'MeetType':'Online',
-                                                         'course_desc':'abc'}, follow=True)
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Math 101")
-
-        resp = self.client.post('/edit.html/Math%20101', {'CourseName':'Math 102', 'MeetType':'Online',
-                                                                    'course_desc':'abc'}, follow=True)
-
-        course = Course.objects.get(Course_name='Math 102')
-        self.assertEqual(course.Course_name, 'Math 102')
 
     def test_editBadCourseName(self):
         test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
@@ -236,9 +223,11 @@ class EditTestCase(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         self.client.login(username='test1@test.com', password='test')
-        resp = self.client.get('/edit.html/Math%20100', {'CourseName':'Math 100', 'course_desc':'',
+        resp = self.client.post('/edit.html/Math%20100', {'CourseName':'Math 105', 'course_desc':'',
                                                          'MeetType':'Online'})
-        self.assertEqual(resp.status_code, 302)
+
+        with self.assertRaises(Course.DoesNotExist, msg="Course does not exist"):
+            course = Course.objects.get(Course_name='Math 105')
 class test_addCourse(TestCase):
     def setUp(self):
         self.client = Client()
@@ -258,6 +247,7 @@ class test_addCourse(TestCase):
         resp = self.client.post('/addcourse/', {'CourseName':'Math 100', 'coursedesc':'',
                                                 'MeetType':'Online'})
         self.assertEqual(resp.context['message'], "You have successfully added Math 100")
+        course = Course.objects.get(Course_name="Math 100")
 
     def test_badCourseName(self):
         test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
@@ -278,8 +268,27 @@ class test_addCourse(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.client.login(username='test2@test.com', password='test')
 
-        resp = self.client.get('/addcourse/', {})
-        self.assertEqual(resp.status_code, 302)
+        resp = self.client.post('/addcourse/', {'CourseName':'Math 100', 'coursedesc':'', 'MeetType':'Online'})
+
+        with self.assertRaises(Course.DoesNotExist, msg="Course does not exist"):
+            course = Course.objects.get(Course_name='Math 100')
+
+    def test_ForgotRequiredData(self):
+        test_user = User.objects.create(username='test2@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='Supervisor')
+
+        resp = self.client.post('', {'username':'test2@test', 'password':'test'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.client.login(username='test2@test.com', password='test')
+
+        resp = self.client.get('/addcourse/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.post('/addcourse/', {'CourseName':"Math 100", 'coursedesc':"",
+                                                            'MeetType':""})
+
+        self.assertEqual(resp.context['message'], "Missing information")
+
 class test_addSection(TestCase):
     def setUp(self):
         self.client = Client()
@@ -298,7 +307,7 @@ class test_addSection(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.client.login(username="test@test.com", password="test")
 
-        resp = self.client.get('/addsection/Math%20101', {'course_name':'Math 101'}, follow=True)
+        resp = self.client.get('/addsection/Math%20101', follow=True)
         self.assertEqual(resp.status_code, 200)
 
         course = Course.objects.get(Course_name="Math 101")
@@ -310,6 +319,62 @@ class test_addSection(TestCase):
                                     'instructor':'None', 'ta':'None'}, follow=True)
 
         self.assertEqual(resp.conext['message'], "You have added 402 to Math 101")
-class LogoutTest(TestCase):
-    client = None
 
+class deleteTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        test_user = User.objects.create(username='test@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='Supervisor')
+        test_user2 = User.objects.create(username='test2@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='TA')
+
+    def test_deleteUser(self):
+        test_user1 = User.objects.create(username='test1@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='Supervisor')
+
+        resp = self.client.post('', {'username': 'test@test.com', 'password': 'test'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.client.login(username="test@test.com", password="test")
+
+        resp = self.client.get('/delete.html/test1@test.com', follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.post('/delete.html/test1@test.com', follow=True)
+        with self.assertRaises(User.DoesNotExist, msg="User does not exist"):
+            user = User.objects.get(username='testtest.com')
+    def test_deleteCourse(self):
+        test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
+
+        resp = self.client.post('', {'username': 'test@test.com', 'password': 'test'}, follow=True)
+        self.client.login(username="test@test.com", password='test')
+
+        resp.client.get('/delete.html/Math%20101', follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.post('/delete.html/Math%20101', follow=True)
+        with self.assertRaises(Course.DoesNotExist, msg="Course does not exist"):
+            course = Course.objects.get(Course_name='Math 101')
+
+    def test_badUserTriesToDeleteCourse(self):
+        test_course = Course.objects.create(Course_name="Math 101", Course_description="", MeetType="Online")
+
+        resp = self.client.post('', {'username': 'test2@test.com', 'password': 'test'}, follow=True)
+        self.client.login(username="test2@test.com", password='test')
+
+        resp = resp.client.post('/delete.html/Math%20101')
+        course = Course.objects.get(Course_name='Math 101')
+        self.assertEqual(course.Course_name, 'Math 101')
+
+    def test_badUserTriesToDeleteUser(self):
+        test_user1 = User.objects.create(username='test10@test.com', password='test', fname='test_name',
+                                        lname='test_lname', role='Supervisor')
+        resp = self.client.post('', {'username': 'test1@test.com', 'password': 'test'}, follow=True)
+        self.client.login(username="test2@test.com", password='test')
+
+        resp = resp.client.post('/delete.html/test10@test.com', follow=True)
+        user = User.objects.get(username='test10@test.com')
+
+        self.assertEqual(user.username, 'test10@test.com')
+
+class LogoutTest(TestCase):
+    pass
