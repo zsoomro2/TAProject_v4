@@ -101,7 +101,7 @@ tfoot td {
 }
 
 /* Form Styles */
-input[type=text], input[type=password], input[type=datetime-local], input[type=number], select, textarea {
+input[type=email], input[type=text], input[type=password], input[type=datetime-local], input[type=number], input[type=email],select, textarea {
   width: calc(100% - 24px);
   padding: 12px;
   margin: 8px 0;
