@@ -1,11 +1,13 @@
-from django.test import TestCase
-from classes.User import User
-
+from django.test import TestCase, Client
+from classes.User import MyUser
 
 class TestUser(TestCase):
-
+    client = None
     def setUp(self):
-        self.user = User("john_doe", "securepassword123", "John", "Doe", "1234567890", "admin")
+        client = self.client = Client()
+        # need client to hold request positional argument
+        self.user = MyUser(client, "john_doe", "securepassword123", "John",
+                           "Doe", "1234567890", "Supervisor")
 
     def test_get_username(self):
         self.assertEqual(self.user.get_username(), "john_doe")
@@ -23,4 +25,4 @@ class TestUser(TestCase):
         self.assertEqual(self.user.get_phone(), "1234567890")
 
     def test_get_role(self):
-        self.assertEqual(self.user.get_role(), "admin")
+        self.assertEqual(self.user.get_role(), "Supervisor")
