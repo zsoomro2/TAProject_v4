@@ -9,29 +9,43 @@ class AddUserTests(TestCase):
                             role='TA')
 
     def test_validate(self):
-        user1 = AddUser(username='test@test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
+        user = AddUser(username='test@test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
                         role='TA')
-        self.assertEqual(user1.validate(), True)
+        self.assertEqual(user.validate(), True)
 
-    def test_emptyValue(self):
-        user2 = AddUser(username='test1@test.com', password='<PASSWORD>', fname="", lname='test_lname', role='TA')
-        self.assertEqual(user2.validate(), False)
+    def test_emptyFName(self):
+        user = AddUser(username='test1@test.com', password='<PASSWORD>', fname="", lname='test_lname', role='TA')
+        self.assertEqual(user.validate(), False)
+
+    def test_emptyLName(self):
+        user = AddUser(username='test1@test.com', password='<PASSWORD>', fname='test_name', lname="", role='TA')
+        self.assertEqual(user.validate(), False)
+
+    def test_emptyUser(self):
+        user = AddUser(username="", password="<PASSWORD>", fname="test_name", lname="test_lname", role="TA")
+        self.assertEqual(user.validate(), False)
+
+    def test_emptyPassword(self):
+        user = AddUser(username='test1@test.com', password='', fname='test_name', lname='test_lname', role='TA')
+        self.assertEqual(user.validate(), False)
 
     def test_badUsername(self):
-        user3 = AddUser(username='test1test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
+        user = AddUser(username='test1test.com', password='<PASSWORD>', fname='test_name', lname='test_lname',
                         role='TA')
-        self.assertEqual(user3.validate(), False)
+        self.assertEqual(user.validate(), False)
 
     def test_badRole(self):
-        user4 = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='Role')
-        self.assertEqual(user4.validate(), False)
+        user = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='Role')
+        self.assertEqual(user.validate(), False)
 
     def test_checkUser(self):
-        user1 = AddUser(username='test@test.com', password='<PASSWORD>', fname='test', lname='test_lname', role='TA')
-        self.assertEqual(user1.checkUser(), True)
+        user = AddUser(username='test@test.com', password='<PASSWORD>', fname='test', lname='test_lname', role='TA')
+        self.assertEqual(user.checkUser(), True)
 
     def test_checkBadInfo(self):
-        user2 = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='TA')
-        self.assertEqual(user2.checkUser(), False)
+        user = AddUser(username='test1@test.com', password='<PASSWORD>', fname=None, lname='test_lname', role='TA')
+        self.assertEqual(user.checkUser(), False)
+
+
 
 
