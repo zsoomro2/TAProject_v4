@@ -152,6 +152,7 @@ class edit(View):
 
         if thing.isUser():
             user = User.objects.get(username=username)
+
             if request.session.get('role') != "Supervisor" and request.session.get('user_id') != user.id:
                 return redirect_to_role_home(request)
 
@@ -178,6 +179,7 @@ class edit(View):
         thing = EditClass(request, username)
         isUser = thing.isUser()
         isCourse = thing.isCourse()
+        update = False
 
         if isUser:
             if request.session.get('role') not in ['Supervisor', 'TA']:
