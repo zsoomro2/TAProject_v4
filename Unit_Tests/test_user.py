@@ -26,3 +26,6 @@ class TestUser(TestCase):
 
     def test_get_role(self):
         self.assertEqual(self.user.get_role(), "Supervisor")
+
+    def test_get_session(self):
+        self.assertEqual(self.user.get_session(), Client)

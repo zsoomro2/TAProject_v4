@@ -15,6 +15,10 @@ class TestSupervisor(TestCase):
         self.supervisor = Supervisor("user", "password")
         self.assertEqual(self.supervisor.username, "user")
 
+    def test_add_supervisor_bad_name(self):
+        self.supervisor = Supervisor("", "password")
+        self.assertEqual(self.supervisor.username, None)
+
 
 class TestCreate(TestCase):
     def setUp(self):
@@ -50,13 +54,6 @@ class TestCreate(TestCase):
         self.supervisor.createCourse("Software Engineering", 361, "01/20/23", "05/20/24", 3, instructor, ta)
         with self.assertRaises(ValueError):
             self.supervisor.createCourse("Software Engineering", 361, "01/20/23", "05/20/24", 3, instructor, ta)
-
-
-class TestRemove(TestCase):
-    def setUp(self):
-        self.supervisor = Supervisor("user", "password")
-        self.jack = TAClass("jdue", "due", "Jack", "Due")
-        self.john = Instructor("jboyland", "boyland", "John", "Boyland")
 
 
 class TestRemove(TestCase):

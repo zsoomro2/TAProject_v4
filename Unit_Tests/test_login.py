@@ -11,9 +11,16 @@ class LoginTests(TestCase):
         user = Login(username='test@test.com', password='<PASSWORD>')
         self.assertEqual(user.getUsername(), 'test@test.com')
 
+    def test_getUsernameNoName(self):
+        user = Login(username='', password='<PASSWORD>')
+        self.assertEqual(user.getUsername(), None,msg='Wrong username')
     def test_getPassword(self):
         user = Login(username='test@test.com', password='<PASSWORD>')
         self.assertEqual(user.getPassword(), '<PASSWORD>')
+
+    def test_getPasswordNoPassword(self):
+        user = Login(username='test@test.com', password='')
+        self.assertEqual(user.getPassword(), None,msg='Wrong password')
 
     def test_getRole(self):
         user = Login(username='test@test.com', password='<PASSWORD>')
@@ -30,3 +37,5 @@ class LoginTests(TestCase):
     def test_badUser(self):
         user = Login(username='test1@test.com', password='<PASSWORD>')
         self.assertEqual(user.findUser('test1@test.com', '<PASSWORD>'), None, msg="User not found")
+
+    
