@@ -191,7 +191,7 @@ class edit(View):
             if request.session.get('role') != 'Supervisor':
                 return redirect_to_role_home(request)
 
-            update = thing.updateCourse(request, username)
+            update = thing.updateCourse(username)
 
         if update:
             # Redirect based on role
