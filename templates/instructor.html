@@ -1,35 +1,111 @@
-{% extends 'base.html' %}
-
-{% block title %}
-    Supervisor Page
-{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Instructor Page</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+  <meta charset="UTF-8">
+  <title>Instructor Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
-    <header>{{ user.role }} Homepage</header>
-
-    <h3>Hello {{ user.fname }} {{ user.lname }}</h3>
-    <div class="user-info">
-    <div class="course-list">
-        List of Courses:
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'instructor' %}">Home</a>
+          </li>
+        </ul>
+      </div>
     </div>
-   <div class="course-list">
-    List of Users:
-    {% for user in users %}
-        <p>{{ user.fname }} {{ user.lname }} - {{ user.role }}</p>
-    {% empty %}
-        <p>No users found.</p>
-    {% endfor %}
-</div>
+  </nav>
+
+  <div class="container mt-5">
+    <h2 class="mb-4">Instructor Dashboard</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Section Number</th>
+          <th scope="col">Course Name</th>
+          <th scope="col">Current TA</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for section in sections %}
+          <tr>
+            <td>{{ section.section_number }}</td>
+            <td>{{ section.Course.Course_name }}</td>
+            <td>{% if section.ta %}{{ section.ta.username }}{% else %}None{% endif %}</td>
+            <td>
+              {% if section.ta %}
+                <a href="{% url 'remove_ta' section.id %}" class="btn btn-sm btn-danger">Remove TA</a>
+              {% else %}
+       
+<form method="post" action="{% url 'add_ta' section.id %}">
+    {% csrf_token %}
+    <div class="input-group">
+        <select name="ta_id" class="form-select" required>
+            {% for ta in tas %}
+                <option value="{{ ta.id }}">
+                    {{ ta.username }} (Skills: 
+                    {% if ta.java_skill or ta.python_skill or ta.frontend_skill or ta.backend_skill or ta.scala_skill or ta.discrete_math_skill %}
+                        {% if ta.java_skill %}Java{% endif %}
+                        {% if ta.python_skill %}{% if ta.java_skill %}, {% endif %}Python{% endif %}
+                        {% if ta.frontend_skill %}{% if ta.java_skill or ta.python_skill %}, {% endif %}Frontend{% endif %}
+                        {% if ta.backend_skill %}{% if ta.java_skill or ta.python_skill or ta.frontend_skill %}, {% endif %}Backend{% endif %}
+                        {% if ta.scala_skill %}{% if ta.java_skill or ta.python_skill or ta.frontend_skill or ta.backend_skill %}, {% endif %}Scala{% endif %}
+                        {% if ta.discrete_math_skill %}{% if ta.java_skill or ta.python_skill or ta.frontend_skill or ta.backend_skill or ta.scala_skill %}, {% endif %}Discrete Math{% endif %}
+                    {% else %}
+                        None
+                    {% endif %}
+                    )
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary">Add TA</button>
     </div>
-    
-        <a href={% url 'adduser' %}> <button> Add Users</button></a>
-</body>
-{% endblock %}
+</form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+
+<form method="post" action="{% url 'edit' instructor.username %}">
+<div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Your Information</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>First Name:</th>
+                            <td>{{ instructor.fname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Name:</th>
+                            <td>{{ instructor.lname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Username:</th>
+                            <td>{{ instructor.username }}</td>
+                        </tr>
+                    </table>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit' instructor.username %}" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+</form>
+</html>

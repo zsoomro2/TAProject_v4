@@ -18,13 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from ta_app.views import (login, supervisor, instructor, ta,
                           adduser, LogoutView, edit, Delete, user_page, ViewCourse, viewAssignments, addCourse,
-                          addSection, updateSection)
+                          addSection, updateSection, edit_ta_skills, AddTA, RemoveTA, DeleteSection)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', login.as_view(), name='login'),
     path('supervisor/', supervisor.as_view(), name='supervisor'),
     path('instructor/', instructor.as_view(), name='instructor'),
+    path('add_ta/<int:section_id>/', AddTA.as_view(), name='add_ta'),
+    path('remove_ta/<int:section_id>/', RemoveTA.as_view(), name='remove_ta'),
     path('ta/', ta.as_view(), name='ta'),
     path('adduser/', adduser.as_view(), name='adduser'),
     path('logout/', LogoutView.as_view(), name='logout'),
@@ -35,6 +37,8 @@ urlpatterns = [
     path('viewassignments/', viewAssignments.as_view(), name='viewassignments'),
     path('addcourse/', addCourse.as_view(), name='addcourse'),
     path('addsection/<str:course_name>', addSection.as_view(), name='addsection'),
-    path('addsection/<str:course_name>/<int:section_number>', updateSection.as_view(), name='updatesection'),
+    path('updatesection/<str:course_name>/<int:section_number>', updateSection.as_view(), name='updatesection'),
+    path('edit_ta_skills/', edit_ta_skills.as_view(), name='edit_ta_skills'),
+    path('deletesection/<str:course>/<int:section>/', DeleteSection.as_view(), name='deletesection')
 
 ]

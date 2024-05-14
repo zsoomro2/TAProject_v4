@@ -11,85 +11,88 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'table.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'supervisor.css' %}">
 </head>
 <body>
     <header>Supervisor Homepage</header>
     <h1>Hello {{ current_user.fname }} {{ current_user.lname }}</h1>
     <br>
-            <div style="text-align: left;">
-</head>
-            
-<div class="w-90 p-3">
-  <h4>Course List:</h4>
-  <table>
-    <thead>
-      <tr>
-          <th>Course Name</th>
-          <th>Meet Type</th>
-          <th>Sections</th>
-          <th>Actions</th>
-      </tr>
-    </thead>
-      <tbody>
-            {% for course in course_list %}
+    
+    <!-- Course List Section -->
+    <div class="content-section">
+        <h4>Course List:</h4>
+        <table>
+            <thead>
                 <tr>
-                <td>{{ course.Course_name }}</td>
-                <td>{{ course.MeetType }}</td>
-                <td>
-                {% for section in section_list %}
-                    {% if section.Course.Course_name == course.Course_name %}
-                        <a href="{% url 'updatesection' course.Course_name section.section_number %}">{{ section.section_number }}</a>
-                    {% endif %}
-                {% endfor %}
-                </td>
-                <td><a class="btn btn-primary" href="{% url 'edit' course.Course_name %}" role="button">Update</a>
-                    <a class="btn btn-danger" href="{% url 'delete' course.Course_name %}" role="button">Delete</a>
-                    <a class="btn btn-info" href="{% url 'viewcourse' course.Course_name %}" role="button">View</a>
-                    <a class="btn btn-warning" href="{% url 'addsection' course.Course_name %}" role="button">Add Section</a></td>
+                    <th>Course Name</th>
+                    <th>Meet Type</th>
+                    <th>Sections</th>
+                    <th>Actions</th>
                 </tr>
-            {% endfor %}
-                </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for course in course_list %}
+                    <tr>
+                        <td>{{ course.Course_name }}</td>
+                        <td>{{ course.MeetType }}</td>
+                        <td>
+                            {% for section in section_list %}
+                                {% if section.Course.Course_name == course.Course_name %}
+                                    <a href="{% url 'updatesection' course.Course_name section.section_number %}">{{ section.section_number }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a class="btn btn-primary" href="{% url 'edit' course.Course_name %}" role="button">Update</a>
+                            <a class="btn btn-danger" href="{% url 'delete' course.Course_name %}" role="button">Delete</a>
+                            <a class="btn btn-info" href="{% url 'viewcourse' course.Course_name %}" role="button">View</a>
+                            <a class="btn btn-warning" href="{% url 'addsection' course.Course_name %}" role="button">Add Section</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <br>
-</div>
+        <div class="center-buttons">
+            <a href="{% url 'viewassignments' %}" class="btn btn-primary">View All Assignments</a>
+            <a href="{% url 'addcourse' %}" class="btn btn-primary">Add Courses</a>
+        </div>
+    </div>
 
-</head>
-<div class="w-75 p-3">
-  <h4>User list:</h4>
-  <table>
-    <thead>
-      <tr>
-         <th>Username</th>
-        <th>Firstname</th>
-        <th>Lastname</th>
-          <th>Role</th>
-          <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-        {% for item in user_list %}
-      <tr>
-        <td>{{ item.username }}</td>
-        <td>{{ item.fname }}</td>
-        <td>{{ item.lname }}</td>
-        <td>{{ item.role }}</td>
-          <td><a class="btn btn-primary" href="{% url 'edit' item.username %}" role="button">Update</a>
-              <a class="btn btn-danger" href="{% url 'delete' item.username %}" role="button">Delete</a></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-<!-- Display Session Information -->
-{#<h2>Session Information</h2>#}
-{#<ul>#}
-{#    <li>User ID: {{ request.session.user_id|default:"No User ID" }}</li>#}
-{#    <li>Role: {{ request.session.role|default:"No Role Found" }}</li>#}
-{#    <li>Session Key: {{ request.session.session_key|default:"None" }}</li>#}
-{#</ul>#}
-<br>
-<a href="{% url 'viewassignments' %}" class="btn btn-primary">View All Assignments</a>
-
-</div>
+    <!-- User List Section -->
+    <div class="content-section">
+        <h4>User list:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in user_list %}
+                    <tr>
+                        <td>{{ item.username }}</td>
+                        <td>{{ item.fname }}</td>
+                        <td>{{ item.lname }}</td>
+                        <td>{{ item.role }}</td>
+                        <td>
+                            <a class="btn btn-primary" href="{% url 'edit' item.username %}" role="button">Update</a>
+                            <a class="btn btn-danger" href="{% url 'delete' item.username %}" role="button">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="center-buttons">
+            <a href="{% url 'edit' current_user.username %}"  class="btn btn-primary">Edit Profile</a>
+            <a href="{% url 'userpage' %}" class="btn btn-primary">View All Users</a>
+            <a href="{% url 'adduser' %}" class="btn btn-primary">Add User</a>
+        </div>
     </div>
 </body>
 {% endblock %}
