@@ -71,10 +71,18 @@ class adduser(View):
         elif not isvalid:
             context['message'] = "There was an error validating the form"
 
-        context['user_list'] = User.objects.all()
-        context['course_list'] = Course.objects.all()
-        context['section_list'] = Section.objects.all()
-        return render(request, "supervisor.html", context)
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        if current_user and current_user.role == "Supervisor":
+            context['current_user'] = current_user
+            context['user_list'] = User.objects.all()
+            context['course_list'] = Course.objects.all()
+            context['section_list'] = Section.objects.all()
+            return render(request, "supervisor.html", context)
 
 
 class supervisor(View):
@@ -144,7 +152,8 @@ class edit(View):
 
         if thing.isUser():
             user = User.objects.get(username=username)
-            if request.session.get('role') not in ['Supervisor', 'TA']:
+
+            if request.session.get('role') != "Supervisor" and request.session.get('user_id') != user.id:
                 return redirect_to_role_home(request)
 
             context.update({
@@ -239,11 +248,21 @@ class Delete(View):
         user_list = User.objects.all()
         course_list = Course.objects.all()
         section_list = Section.objects.all()
-        return render(request, 'supervisor.html', {'user_list': user_list,
-                                                   'course_list': course_list,
-                                                   'message': "You have deleted " + username,
-                                                   'section_list': section_list})
+        user_id = request.session.get('user_id')
 
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
+
+        if current_user and current_user.role == "Supervisor":
+            return render(request, 'supervisor.html', {
+                'user_list': user_list,
+                'course_list': course_list,
+                'section_list': section_list,
+                'current_user': current_user,
+                'message': "You have deleted " + username,
+            })
 
 class ViewCourse(View):
     def get(self, request, course_name):
@@ -303,14 +322,30 @@ class addCourse(View):
                 context["message"] = "Course already exists"
                 context["MeetType"] = MeetType
                 return render(request, "addCourse.html", context)
+
+        if name == "" or meet == "":
+            context["message"] = "Missing information"
+            context["MeetType"] = MeetType
+            return render(request, "addCourse.html", context)
+
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
+
         new_course = Course(Course_name=name, MeetType=meet, Course_description=desc)
         new_course.save()
+        user_id = request.session.get('user_id')
+        try:
+            current_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            current_user = None
 
-        context["message"] = "You have successfully added " + name
-        context["user_list"] = User.objects.all()
-        context["course_list"] = Course.objects.all()
-        context["section_list"] = Section.objects.all()
-        return render(request, "supervisor.html", context)
+        if current_user and current_user.role == "Supervisor":
+            context['current_user'] = current_user
+            context["message"] = "You have successfully added " + name
+            context["user_list"] = User.objects.all()
+            context["course_list"] = Course.objects.all()
+            context["section_list"] = Section.objects.all()
+            return render(request, "supervisor.html", context)
 
 
 class addSection(View):
@@ -469,7 +504,6 @@ class updateSection(View):
 
         instructor_str = request.POST.get("instructor", "")
         ta_str = request.POST.get("ta", "")
-
         instructor_username = instructor_str.split(' ')[0] if instructor_str else None
         ta_username = ta_str.split(' ')[0] if ta_str else None
 
