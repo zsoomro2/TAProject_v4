@@ -182,7 +182,8 @@ class edit(View):
         update = False
 
         if isUser:
-            if request.session.get('role') not in ['Supervisor', 'TA']:
+            user = User.objects.get(username=username)
+            if request.session.get('role') != 'Supervisor' and request.session.get('user_id') != user.id:
                 return redirect_to_role_home(request)
 
             update = thing.updateUser(request, username)
@@ -400,6 +401,8 @@ class addCourse(View):
 
 class addSection(View):
     def get(self, request, course_name):
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
         user_id = request.session.get('user_id')
         try:
             current_user = User.objects.get(id=user_id)
@@ -436,6 +439,8 @@ class addSection(View):
             return render(request, "login.html", {"message": "You have to login to view this page"})
 
     def post(self, request, course_name):
+        if request.session.get('role') != 'Supervisor':
+            return redirect_to_role_home(request)
         context = {}
         course = course_name
         sec_num = request.POST["sec_num"]
@@ -468,6 +473,7 @@ class addSection(View):
                 ta = User.objects.get(username=ta_username)
             except User.DoesNotExist:
                 ta = None
+
 
         course_obj = Course.objects.get(Course_name=course)
         section_list = Section.objects.filter(Course=course_obj.id)

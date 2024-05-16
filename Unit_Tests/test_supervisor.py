@@ -91,7 +91,7 @@ class TestRemove(TestCase):
 
     def test_remove_course(self):
         Supervisor.removeCourse(self.supervisor, 361)
-        courses = list(Course.objects.filter(section=361))
+        courses = list(Course.objects.filter(Course_name="Software Engineering"))
         self.assertEqual(len(courses), 0)
 
     def test_remove_unknown_course(self):
